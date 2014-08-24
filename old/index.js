@@ -203,24 +203,23 @@
         this.validate = function(object, name, callback) {
             var errors = {};
             validateObject(object, this.schemas[name], errors, null);
-            
+
             if (Object.keys(errors).length)
                 callback(errors, null);
             else
                 callback(null, object);
         };
-
     };
 
 
     /**
-     * Export to Node.js or client-side
+     * Save To Window Object
      */
 
-    if (typeof module !== 'undefined' && typeof module.exports !== 'undefined')
-        module.exports = Servant;
-    else
-        window.SVNT = Servant;
+    if (!window.Servant) {
+        window.Servant = Servant;
+    }
+
 })();
 
 

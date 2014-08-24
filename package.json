@@ -28,7 +28,7 @@
     "url": "https://github.com/servant-cmes/servant-sdk-javascript/issues"
   },
   "scripts": {
-    "test": "node ./test/test.js | tap-spec"
+    "test": "node ./rob_tests/test | tap-spec"
   },
   "homepage": "https://github.com/servant-cmes/servant-sdk-javascript",
   "devDependencies": {
