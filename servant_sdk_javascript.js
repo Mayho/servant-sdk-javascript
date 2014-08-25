@@ -1,5 +1,10 @@
-(function() {
+/**
+ * Servant SDK Javascript for Client-Side Applications
+ * 
+ */
 
+
+(function() {
 
     /**
      *  Servant Constructor
