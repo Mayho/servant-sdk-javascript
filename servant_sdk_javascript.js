@@ -268,7 +268,7 @@
         },
         minItems: function(rules, array) {
             if (!Array.isArray(array)) return;
-            if (array.length < rules.minItems) return 'Only ' + rules.minItems + ' or more allowed';
+            if (array.length < rules.minItems) return rules.minItems + ' or more are required';
         },
         uniqueItems: function(rules, array) {
             if (!Array.isArray(array))
@@ -290,7 +290,7 @@
         },
         format: function(rules, value) {
             if(!this._utilities.formatValidators[rules.format].call(this, value))
-                return 'Is not in a valid ' + rules.format + ' format';
+                return 'Not a valid ' + rules.format + ' format';
                 
         },
         required: function(requiredArray, object) {
@@ -330,7 +330,7 @@
         var idx = keys.length;
         while (idx--) {
             if (self._validators[keys[idx]]) {
-                var error = self._validators[keys[idx]].call(self, rules, array, property);
+                var error = self._validators[keys[idx]].call(self, rules, array);
                 if (error) errors[property] = error;
             }
         };
@@ -356,7 +356,7 @@
                             createArrayError(errors, property, prop, i, error[prop]);
                         }
                     } else {
-                        // Iterate Through Properties
+                        // If Required Fields Are Present, Iterate Through Properties
                         var keys2 = Object.keys(item);
                         var idx2 = keys2.length;
                         while (idx2--) {

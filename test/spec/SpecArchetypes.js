@@ -1,9 +1,9 @@
 /**
- * 
+ *
  * Test Registration, Instantiation & Instance Validation of Archetypes
- * 
+ *
  * Note: Errors are also logged to console for inspection
- * 
+ *
  */
 
 describe("Test Servant SDK Archetype Functions --- ", function() {
@@ -17,8 +17,10 @@ describe("Test Servant SDK Archetype Functions --- ", function() {
 	it("Add Schemas", function() {
 		servant.addArchetype('product', productSchema);
 		servant.addArchetype('task', taskSchema);
+		servant.addArchetype('receipt', receiptSchema);
 		expect(typeof servant._archetypes.product).not.toBe('undefined');
 		expect(typeof servant._archetypes.task).not.toBe('undefined');
+		expect(typeof servant._archetypes.receipt).not.toBe('undefined');
 		console.log("Add Schemas: ", servant._archetypes);
 	});
 
@@ -213,7 +215,7 @@ describe("Test Servant SDK Archetype Functions --- ", function() {
 		product12.seller = 'Store1';
 		product12.shipping_prices = [{
 			shipping_price: 2000,
-			shipping_place: 'canada',
+			shipping_country: 'canada',
 			yada: 'yada'
 		}]
 		product12.variations = [{
@@ -253,7 +255,7 @@ describe("Test Servant SDK Archetype Functions --- ", function() {
 		product14.seller = 'Store1';
 		product14.shipping_prices = [{
 			shipping_price: 2000,
-			shipping_place: 'canada'
+			shipping_country: 'canada'
 		}, {
 			shipping_price: 2000
 		}]
@@ -264,7 +266,7 @@ describe("Test Servant SDK Archetype Functions --- ", function() {
 		servant.validate('product', product14, function(errors, product14) {
 			console.log("Validate Array Of Objects With Missing Properties:", errors);
 			expect(product14).toEqual(null);
-			expect(typeof errors.shipping_prices_array['1'].shipping_place).not.toBe('undefined');
+			expect(typeof errors.shipping_prices_array['1'].shipping_country).not.toBe('undefined');
 			expect(typeof errors.variations_array['0'].variation_in_stock).not.toBe('undefined');
 		});
 	});
@@ -280,16 +282,16 @@ describe("Test Servant SDK Archetype Functions --- ", function() {
 		}]
 		product16.shipping_prices = [{
 			shipping_price: 2000,
-			shipping_place: 'cda'
+			shipping_country: 'cda'
 		}, {
 			shipping_price: 2000
 		}]
 
 		servant.validate('product', product16, function(errors, product16) {
 			console.log("Validate Array Of Objects With MaxLength Exceeded:", errors);
-			expect(product16).toEqual(null);	
-			expect(typeof errors.shipping_prices_array['0'].shipping_place).not.toBe('undefined');		
-			expect(typeof errors.shipping_prices_array['1'].shipping_place).not.toBe('undefined');
+			expect(product16).toEqual(null);
+			expect(typeof errors.shipping_prices_array['0'].shipping_country).not.toBe('undefined');
+			expect(typeof errors.shipping_prices_array['1'].shipping_country).not.toBe('undefined');
 			expect(typeof errors.variations_array['0'].variation_title).not.toBe('undefined');
 		});
 	});
@@ -305,12 +307,12 @@ describe("Test Servant SDK Archetype Functions --- ", function() {
 		}]
 		product17.shipping_prices = [{
 			shipping_price: '2000',
-			shipping_place: 'canada'
+			shipping_country: 'canada'
 		}]
 
 		servant.validate('product', product17, function(errors, product17) {
 			console.log("Validate Array Of Objects With Invalid Types For Properties:", errors);
-			expect(product17).toEqual(null);	
+			expect(product17).toEqual(null);
 			expect(typeof errors.shipping_prices_array['0'].shipping_price).not.toBe('undefined');
 			expect(typeof errors.variations_array['0'].variation_in_stock).not.toBe('undefined');
 			expect(typeof errors.variations_array['0'].variation_title).not.toBe('undefined');
@@ -323,14 +325,14 @@ describe("Test Servant SDK Archetype Functions --- ", function() {
 		expect(typeof task.task).not.toBe('undefined');
 	});
 
-	it("Validate Format", function() {
+	it("Validate Format Datetime", function() {
 		var task2 = servant.new('task');
 		task2.task = 'Clean Office';
 		task2.due_date = '12-12-2012 11:01';
 
 		servant.validate('task', task2, function(errors, task2) {
-			console.log("Validate Format:", errors);
-			expect(task2).toEqual(null);	
+			console.log("Validate Format DateTime:", errors);
+			expect(task2).toEqual(null);
 		});
 	});
 
@@ -344,6 +346,32 @@ describe("Test Servant SDK Archetype Functions --- ", function() {
 			expect(errors).toEqual(null);
 		});
 	});
+
+	it("Validate Exceeding MinItems Array", function() {
+		var receipt = servant.new('receipt');
+		receipt.transaction_date = 'Clean Office';
+		receipt.price_total = '1997-07-asfasf00';
+
+		servant.validate('receipt', receipt, function(errors, receipt) {
+			console.log("Validate Exceeding MinItems Array:", errors);
+			expect(receipt).toEqual(null);
+			expect(typeof errors.products).not.toBe('undefined');
+		});
+	});
+
+	it("Validate Format Email", function() {
+		var receipt = servant.new('receipt');
+		receipt.shipping_email = 'blah';
+		receipt.customer_email = 'john@gmail.com';
+
+		servant.validate('receipt', receipt, function(errors, receipt) {
+			console.log("Validate Format Email:", errors);
+			expect(receipt).toEqual(null);
+			expect(typeof errors.shipping_email).not.toBe('undefined');
+			expect(typeof errors.customer_email).toBe('undefined');
+		});
+	});
+
 
 
 }); // describe
