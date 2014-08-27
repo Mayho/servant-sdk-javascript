@@ -25,8 +25,12 @@ describe("Test Servant SDK Archetype Functions --- ", function() {
 	});
 
 	it("Create New Product Instance", function() {
-		var product1 = servant.new('product');
-		expect(product1).not.toEqual(null);
+		var product0 = servant.new('product');
+		var receipt0 = servant.new('receipt');
+		var task0 = servant.new('task');
+		expect(product0).not.toEqual(null);
+		expect(receipt0).not.toEqual(null);
+		expect(task0).not.toEqual(null);
 	});
 
 	it("Validate New Product Instance", function() {
@@ -36,6 +40,14 @@ describe("Test Servant SDK Archetype Functions --- ", function() {
 			expect(product2).toEqual(null);
 			expect(typeof errors.title).not.toBe('undefined');
 			expect(typeof errors.seller).not.toBe('undefined');
+		});
+	});
+
+	it("Validate Incorrect Instance Type", function() {
+		servant.validate('product', ['product2', 'yasfysaf'], function(errors, product) {
+			console.log("Validate Incorrect Instance Type:", errors);
+			expect(product).toEqual(null);
+			expect(typeof errors.schema).not.toBe('undefined');
 		});
 	});
 

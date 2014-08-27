@@ -1,6 +1,6 @@
 /**
  * Servant SDK Javascript for Client-Side Applications
- * 
+ *
  */
 
 
@@ -289,9 +289,9 @@
             if (match === false) return value + ' is not an allowed option';
         },
         format: function(rules, value) {
-            if(!this._utilities.formatValidators[rules.format].call(this, value))
+            if (!this._utilities.formatValidators[rules.format].call(this, value))
                 return 'Not a valid ' + rules.format + ' format';
-                
+
         },
         required: function(requiredArray, object) {
             var errors = {};
@@ -399,6 +399,13 @@
         }
 
         var errors = {};
+
+        // Check Instance
+        if (!instance || this._utilities.whatIs(instance) !== 'object') {
+            errors.schema = 'You did not submit a valid object to validate';
+            return callback(errors, null);
+        }
+
         // Check Required Fields.  JSON Archetypes always have required fields
         var required = this._validators.required(archetype.required, instance);
         if (required) {
