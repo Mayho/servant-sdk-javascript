@@ -92,14 +92,14 @@
         }
 
         if (to === 'number') {
-            if (Number.isFinite(what)) {
+            if (isFinite(what)) {
                 if (what % 1 === 0) {
                     return 'integer';
                 } else {
                     return 'number';
                 }
             }
-            if (Number.isNaN(what)) {
+            if (isNaN(what)) {
                 return 'not-a-number';
             }
             return 'unknown-number';
