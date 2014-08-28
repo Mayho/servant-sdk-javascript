@@ -378,6 +378,31 @@ describe("Test Servant SDK Archetype Functions --- ", function() {
 		});
 	});
 
+	it("Validate Nested Archetypes", function() {
+		var product = servant.new('product');
+		// Add Invalid Nested Archetypes
+		product.primary_image_archetype = {
+			title: 'a great image',
+			large_resolution: 'http://largeimage.com'
+		};
+		// Add Invalid & Duplicate Nested Archetypes
+		product.image_archetypes = [{
+			title: 'a great image',
+			large_resolution: 'http://largeimage.com'
+		}, {
+			title: 'a great image',
+			large_resolution: 'http://largeimage.com'
+		}];
+
+		servant.validate('product', product, function(errors, product) {
+			console.log("Validate Nested Archetypes:", errors);
+			expect(typeof errors.image_archetypes).not.toBe('undefined');
+			expect(typeof errors.image_archetypes_array['0']).not.toBe('undefined');
+			expect(typeof errors.image_archetypes_array['1']).not.toBe('undefined');
+			expect(typeof errors.primary_image_archetype).not.toBe('undefined');
+		});
+	});
+
 
 
 }); // describe

@@ -316,6 +316,12 @@
         };
     };
 
+    Servant.prototype._validateNestedArchetype = function(errors, rules, value) {
+        if (this._utilities.whatIs(value) !== 'object') return 'Invalid type - Nested Archetype must be an object';
+        if (!value._id || typeof value._id === 'undefined') return 'Nested Archetypes must be published on Servant first.  Please publish this nested Archetype on Servant, then include the publshed object'
+        return null;
+    };
+
     Servant.prototype._validateArray = function(errors, rules, array, property) {
         // Function to create array errors
         var createArrayError = function(errors, arrayproperty, objectproperty, index, err) {
@@ -337,7 +343,11 @@
 
         // Iterate Through Array
         array.forEach(function(item, i) {
-            if (rules.items.type !== 'object') {
+            if (rules.items.$ref) {
+                // Check if nested Archetype
+                var error = self._validateNestedArchetype(errors, rules.items, item);
+                if (error) createArrayError(errors, property, null, i, error);
+            } else if (rules.items.type && rules.items.type !== 'object') {
                 // 
                 if (self._utilities.whatIs.call(self, item) !== rules.items.type) {
                     createArrayError(errors, property, null, i, 'Invalid type');
@@ -345,8 +355,9 @@
                     var error = self._validateProperty(errors, rules.items, item, property);
                     if (error) createArrayError(errors, property, null, i, error);
                 }
-            } else if (rules.items.type === 'object') {
-                // Check type of item first
+            } else if (rules.items.type && rules.items.type === 'object') {
+                // If the item is not an object
+                // Check its type
                 if (self._utilities.whatIs.call(self, item) !== 'object') {
                     createArrayError(errors, property, null, i, 'Invalid type.  Must be an object');
                 } else {
@@ -419,14 +430,22 @@
         var keys1 = Object.keys(instance);
         var idx1 = keys1.length;
         while (idx1--) {
-            // Check If Allowed Property, Check Type, Check If Array, Validate
+
             if (!archetype.properties[keys1[idx1]]) {
+                // Check If Allowed Property
                 errors[keys1[idx1]] = keys1[idx1] + ' is not allowed';
             } else if (archetype.properties[keys1[idx1]] && archetype.properties[keys1[idx1]].type && this._utilities.whatIs.call(this, instance[keys1[idx1]]) !== archetype.properties[keys1[idx1]].type) {
+                // Check If Valid Type
                 errors[keys1[idx1]] = 'Invalid type';
             } else if (archetype.properties[keys1[idx1]] && this._utilities.whatIs.call(this, instance[keys1[idx1]]) === 'array' && instance[keys1[idx1]].length) {
+                // Check If Array
                 this._validateArray(errors, archetype.properties[keys1[idx1]], instance[keys1[idx1]], keys1[idx1]);
+            } else if (archetype.properties[keys1[idx1]] && archetype.properties[keys1[idx1]].$ref) {
+                // Check If Nested Archetype
+                var error = this._validateNestedArchetype(errors, archetype.properties[keys1[idx1]], instance[keys1[idx1]]);
+                if (error) errors[keys1[idx1]] = error;
             } else {
+                // Check If String Or Number Property, Then Validate
                 var error = this._validateProperty(errors, archetype.properties[keys1[idx1]], instance[keys1[idx1]], keys1[idx1]);
                 if (error) errors[keys1[idx1]] = error;
             }
