@@ -311,7 +311,7 @@
         while (idx--) {
             if (this._validators[keys[idx]]) {
                 var error = this._validators[keys[idx]].call(this, rules, value, property);
-                if (error) errors[property] = error;
+                if (error) return error;
             }
         };
     };
@@ -338,6 +338,7 @@
         // Iterate Through Array
         array.forEach(function(item, i) {
             if (rules.items.type !== 'object') {
+                // 
                 if (self._utilities.whatIs.call(self, item) !== rules.items.type) {
                     createArrayError(errors, property, null, i, 'Invalid type');
                 } else {
@@ -426,7 +427,8 @@
             } else if (archetype.properties[keys1[idx1]] && this._utilities.whatIs.call(this, instance[keys1[idx1]]) === 'array' && instance[keys1[idx1]].length) {
                 this._validateArray(errors, archetype.properties[keys1[idx1]], instance[keys1[idx1]], keys1[idx1]);
             } else {
-                this._validateProperty(errors, archetype.properties[keys1[idx1]], instance[keys1[idx1]], keys1[idx1]);
+                var error = this._validateProperty(errors, archetype.properties[keys1[idx1]], instance[keys1[idx1]], keys1[idx1]);
+                if (error) errors[keys1[idx1]] = error;
             }
         }
 
@@ -450,10 +452,23 @@
 
         var instance = {};
         for (property in this._archetypes[archetype].properties) {
-            if (this._archetypes[archetype].properties[property].type !== 'array' && this._archetypes[archetype].properties[property].type !== 'object')
-                instance[property] = this._archetypes[archetype].properties[property].default;
-            else
+
+            // Handle Depending On Type & Format
+            if (this._archetypes[archetype].properties[property].type !== 'array' && this._archetypes[archetype].properties[property].type !== 'object') {
+
+                // Check Format
+                if (!this._archetypes[archetype].properties[property].format) {
+                    instance[property] = this._archetypes[archetype].properties[property].default;
+                } else if (this._archetypes[archetype].properties[property].format === 'date' || this._archetypes[archetype].properties[property].format === 'date-time') {
+                    // If Date or Date-time Format
+                    var d = new Date();
+                    instance[property] = d.toISOString();
+                }
+
+            } else {
+                // Handle Arrays & Objects
                 instance[property] = this._archetypes[archetype].properties[property].default.slice();
+            }
         }
         return instance;
     };

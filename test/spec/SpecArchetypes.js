@@ -24,13 +24,14 @@ describe("Test Servant SDK Archetype Functions --- ", function() {
 		console.log("Add Schemas: ", servant._archetypes);
 	});
 
-	it("Create New Product Instance", function() {
+	it("Create New Instances", function() {
 		var product0 = servant.new('product');
 		var receipt0 = servant.new('receipt');
 		var task0 = servant.new('task');
 		expect(product0).not.toEqual(null);
 		expect(receipt0).not.toEqual(null);
 		expect(task0).not.toEqual(null);
+		console.log('Create New Instances', product0, receipt0, task0);
 	});
 
 	it("Validate New Product Instance", function() {
@@ -229,18 +230,18 @@ describe("Test Servant SDK Archetype Functions --- ", function() {
 			shipping_price: 2000,
 			shipping_country: 'canada',
 			yada: 'yada'
-		}]
+		}];
 		product12.variations = [{
 			variation_title: ';alkjf ;lasf j',
 			variation_in_stock: true,
 			yada: ' yada'
-		}]
+		}];
 
 		servant.validate('product', product12, function(errors, product12) {
 			console.log("Validate Array Of Objects With Not Allowed Properties:", errors);
 			expect(product12).toEqual(null);
 			expect(typeof errors.shipping_prices_array['0'].yada).not.toBe('undefined');
-			expect(typeof errors.variations_array['0'].yada).not.toBe('undefined');
+			expect(typeof errors.variations_array).not.toBe('undefined');
 		});
 	});
 
@@ -271,15 +272,12 @@ describe("Test Servant SDK Archetype Functions --- ", function() {
 		}, {
 			shipping_price: 2000
 		}]
-		product14.variations = [{
-			variation_title: ';alkjf ;lasf j'
-		}]
+		product14.variations = ['asfasfd']
 
 		servant.validate('product', product14, function(errors, product14) {
 			console.log("Validate Array Of Objects With Missing Properties:", errors);
 			expect(product14).toEqual(null);
 			expect(typeof errors.shipping_prices_array['1'].shipping_country).not.toBe('undefined');
-			expect(typeof errors.variations_array['0'].variation_in_stock).not.toBe('undefined');
 		});
 	});
 
@@ -288,10 +286,7 @@ describe("Test Servant SDK Archetype Functions --- ", function() {
 		product16.title = 'Product1';
 		product16.price = 1099;
 		product16.seller = 'Store1';
-		product16.variations = [{
-			variation_title: ';alkjf ;;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j',
-			variation_in_stock: true
-		}]
+		product16.variations = ['hi', ';alkjf ;;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j;alkjf ;lasf j;alkjf', 'yo'];
 		product16.shipping_prices = [{
 			shipping_price: 2000,
 			shipping_country: 'cda'
@@ -304,7 +299,7 @@ describe("Test Servant SDK Archetype Functions --- ", function() {
 			expect(product16).toEqual(null);
 			expect(typeof errors.shipping_prices_array['0'].shipping_country).not.toBe('undefined');
 			expect(typeof errors.shipping_prices_array['1'].shipping_country).not.toBe('undefined');
-			expect(typeof errors.variations_array['0'].variation_title).not.toBe('undefined');
+			expect(typeof errors.variations_array['1']).not.toBe('undefined');
 		});
 	});
 
@@ -326,8 +321,7 @@ describe("Test Servant SDK Archetype Functions --- ", function() {
 			console.log("Validate Array Of Objects With Invalid Types For Properties:", errors);
 			expect(product17).toEqual(null);
 			expect(typeof errors.shipping_prices_array['0'].shipping_price).not.toBe('undefined');
-			expect(typeof errors.variations_array['0'].variation_in_stock).not.toBe('undefined');
-			expect(typeof errors.variations_array['0'].variation_title).not.toBe('undefined');
+			expect(typeof errors.variations_array['0']).not.toBe('undefined');
 		});
 	});
 
