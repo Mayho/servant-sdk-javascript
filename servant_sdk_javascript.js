@@ -466,8 +466,9 @@
 
     Servant.prototype.new = function(archetype) {
         if (typeof archetype !== 'string') throw new Error('The new() method only accept a string for a name parameter');
-        var archetype = archetype.toLowerCase();
+        archetype = archetype.toLowerCase();
         if (!this._archetypes[archetype]) throw new Error('This JSON Archetype has not been registered: ' + archetype + '. Make sure you add it using the addArchetype method');
+        if (archetype === 'image') throw new Error('Image Archetype cannot be instantiated.  To create an Image Archetype, simply upload an image to Servant.');
 
         var instance = {};
         for (property in this._archetypes[archetype].properties) {
