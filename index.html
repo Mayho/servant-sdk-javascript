@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!-- This is a very basic example -->
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>How To Build Front-End Servant Applications</title>
+    <link rel="stylesheet" href="example/application.css">
+    <link rel="stylesheet" href='https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.2.0/animate.min.css'>
+    <script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
+    <script type='text/javascript' src="src/servant_sdk_javascript.js"></script>
+    <script type='text/javascript' src="example/application.js"></script>
+</head>
+
+<body>
+
+    <div class="container animated bounceInUp">
+
+        <h1 style="margin-bottom:5px;">How To Build Front-End Servant Applications</h1>
+        <h3 style="margin-top:5px;opacity:0.7">The Official Guide</h3>
+
+        <!-- Connect Screen -->
+        <div id="connect-view">
+            <p class="tip">
+                This guide walks you through how to build front-end applications that connect to Servant using the Servant Javascript SDK.
+            </p>
+
+            <p class="tip">
+                "Web pages", "client-side" or "front-end applications" all refer to the same thing: a single web page that changes its content via Javascript. This entire guide is actually a "front-end" Servant Application and you must have a Servant to connect to it and view the examples. If you don't have a Servant, <a href="https://www.servant.co" target="_blank">get one here</a>.
+            </p>
+
+            <p class="tip">
+                Since Servant pays developers for the Serves (API Requests) their applications generate, we are getting paid when you connect your Servant to view these examples. Basically, we've monetized our documentation. The point of this is to start you thinking about the new types of business models Servant enables while you are building your applications. Applications that normally couldn't be monetized (like documentation) can now make money.
+            </p>
+
+
+            <h2 class="chapter">Register Your Application On Servant</h2>
+
+            <p class="tip">
+                Register your application in the Developers section of <a href="https://www.servant.co" target="_blank">Servant</a>. Set the REDIRECT_URL to be the URL of your application. If you are just playing around, check the DEVELOPMENT_MODE box and enter your local urls (like "localhost:8080" for the DOMAIN and http://localhost:8080 for the REDIRECT_URL). You don't need another route to use for the REDIRECT_URL, simply enter the basic url of your website, and we'll show you how to do everything via one route.
+            </p>
+
+            <h2 class="chapter">Import The Servant Javascript SDK Into Your Web Page</h2>
+
+            <p class="tip">
+                Before the closing `</body>` tag in your website, add in the Servant SDK, like this:
+            </p>
+<p class="well">
+    &lt;script type='text/javascript' src="servant_sdk_javascript.js"&gt;&lt;/script&gt;
+</p>
+
+<h2 class="chapter">Adding The Connect Button</h2>
+
+<h2 class="method">Servant.connect()</h2>
+<p class="tip">
+    Add onclick="Servant.connect()" to an html button to make it a 'Connect Servant' button
+</p>
+<p>
+    <button class="btn btn-primary" onclick="Servant.connect()">Connect Servant</button>
+</p>
+<p>
+    Click Connect Servant to see all examples...
+</p>
+</div>
+
+<!-- Examples Screen -->
+<div id="examples-view" class="animated bounceInUp">
+
+    <p class="tip">
+        Notice: The following methods have just been run. They posted data to your Servant account, if you had a Servant, then deleted that data, leaving your account clean.
+    </p>
+
+    <h2 class="method">Servant.initialize(options)</h2>
+    <p class="tip">
+        Just saved the access_token into the SDK from the URL parameters and removed it from the URL
+    </p>
+
+    <h2 class="method">Servant.getUserAndServants()</h2>
+    <p class="tip">
+        Gets the User's information as well as all of the Servants that have given permission to this application
+    </p>
+    <h4>User</h4>
+    <p id="user" class="well">Connect your Servant to see this...</p>
+    <h4>Servants</h4>
+    <p id="servants" class="well">Connect your Servant to see this...</p>
+
+    <h2 class="method">Servant.instantiate(archetype)</h2>
+    <p class="tip">
+        Instantiates a new Archetype as an object with all of the properties available
+    </p>
+    <p>Create A New Product Instance using Servant.instantiate('product')</p>
+    <p id="product-instance" class="well">Connect your Servant to see this...</p>
+
+    <h2 class="method">Servant.validate(archetype, instance, callback)</h2>
+    <p class="tip">
+        Validates an instance of an Archetype locally without sending it to Servant.
+    </p>
+    <p class="tip">
+        Let's validate the default instance we created with Servant.instantiate(): Servant.validate('product', instance, funciton(error, result) {}); Here is the result:
+    </p>
+    <p id="product-validated1" class="well">Connect your Servant to see this...</p>
+    <p class="tip">
+        Validation failed because the Servant.instantiate() instance doesn't add values, only the properties available in the archetype. So we have to add some properties in. Let's give values to the "name", "price" and "seller" properties and run the Servant.validate() method again.
+    </p>
+    <p id="product-validated2" class="well">Connect your Servant to see this...</p>
+    <p class="tip">
+        No errors appeared and the product instance passed through perfectly. Now we can post the product to Servant's API.
+    </p>
+
+    <h2 class="method">Servant.saveArchetype(servantID, archetype, instance, success, failed)</h2>
+    <p class="tip">
+        Saves an instance of an Archetype to a Servant via the API. If the instance has an "_id" it will be updated, if not, it will be created.
+    </p>
+    <p>Since our product instance is valid, we should be able to save it to Servant's database without any problems</p>
+    <p id="product-saved" class="well">Connect your Servant to see this...</p>
+    <p>Notice we now have an "_id" property. Which we can use to update the product via the same method...</p>
+    <p class="tip">
+        Let's update the product "name" and save it using the same Servant.saveArchetype() method
+    </p>
+    <p id="product-updated" class="well">Connect your Servant to see this...</p>
+
+    <h2 class="method">Servant.showArchetype(servantID, archetype, archetypeID, success, failed)</h2>
+    <p class="tip">
+        Fetches an Archetype record from Servant via the API. Let's show the product we've created.
+    </p>
+    <p id="product-show" class="well">Connect your Servant to see this...</p>
+
+</div>
+
+</div>
+
+</body>
+
+</html>

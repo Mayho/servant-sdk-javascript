@@ -1,0 +1,13 @@
+{
+    "name": "servant-sdk-js",
+    "version": "0.0.0",
+    "ignore":[
+    	"server.js",
+    	"README.md",
+    	"index.html",
+    	"archetypes.js",
+    	".gitignore",
+    	"node_modules",
+    	"example"
+    ]
+}

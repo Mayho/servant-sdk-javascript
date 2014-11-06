@@ -8,7 +8,7 @@
 
 describe("Test Servant SDK Archetype Functions --- ", function() {
 
-	servant = new Servant(0, 'access_token_JTNxPsCA7IvZdZrCkrDsc1krrRinpSIVQg3a6v8acOmQibApd160A1yD9bJ4A04NFqSUiNcrH0A06nqE3UoQH3JRVrPhCJHrIgXGkQJzxVaguSJke9er0mkQ9zaEixnNRqJXLwRXs2dHyAjr0RgQ7UWjIkE7zSxvpMpsvkR2iMaey7ErkMGmoKfBwdtfxpcTEa7h9vMh57MIBTSkHd3DwPhiCShYMCuONvWOQVIW8XrjYQMuibqNUrzZJaLhIyXE');
+	servant = new Servant();
 
 	it("Instantiate Servant SDK", function() {
 		expect(typeof servant._token).not.toBe('undefined');

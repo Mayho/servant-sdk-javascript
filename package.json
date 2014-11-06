@@ -1,38 +1,43 @@
 {
-  "name": "servant-sdk-javascript",
-  "version": "0.0.1",
-  "description": "Servant SDK for javascript",
-  "main": "index.js",
-  "scripts": {},
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/servant-cmes/servant-sdk-javascript.git"
-  },
-  "keywords": [
-    "servant",
-    "api",
-    "content",
-    "cloud",
-    "storage",
-    "archetypes",
-    "content",
-    "archetypes",
-    "servants"
-  ],
-  "author": "",
-  "license": "MIT",
-  "dependencies": {
-    "json-archetypes": "git://github.com/servant-cmes/json-archetypes.git"
-  },
-  "bugs": {
-    "url": "https://github.com/servant-cmes/servant-sdk-javascript/issues"
-  },
-  "scripts": {
-    "test": "node ./rob_tests/test | tap-spec"
-  },
-  "homepage": "https://github.com/servant-cmes/servant-sdk-javascript",
-  "devDependencies": {
-    "tap-spec": "0.2.0",
-    "tape": "2.13.3"
-  }
+    "name": "servant-sdk-javascript",
+    "version": "0.0.1",
+    "description": "Servant SDK for javascript",
+    "main": "index.js",
+    "scripts": {},
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/servant-cmes/servant-sdk-javascript.git"
+    },
+    "keywords": [
+        "servant",
+        "api",
+        "content",
+        "cloud",
+        "storage",
+        "archetypes",
+        "content",
+        "archetypes",
+        "servants"
+    ],
+    "author": "",
+    "license": "MIT",
+    "engines": {
+        "node": ">=0.10",
+        "npm": "1.1.32"
+    },
+    "bugs": {
+        "url": "https://github.com/servant-cmes/servant-sdk-javascript/issues"
+    },
+    "scripts": {
+        "test": "node ./rob_tests/test | tap-spec"
+    },
+    "homepage": "https://github.com/servant-cmes/servant-sdk-javascript",
+    "dependencies": {
+        "connect": "^3.2.0",
+        "serve-static": "^1.6.3"
+    },
+    "devDependencies": {
+        "tap-spec": "0.2.0",
+        "tape": "2.13.3"
+    }
 }
