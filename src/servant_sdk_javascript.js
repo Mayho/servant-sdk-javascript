@@ -1,7 +1,7 @@
 /**
  * 
  * Servant SDK Javascript for Client-Side Applications and Regular Web Pages
- * Version: v0.0.3
+ * Version: v0.0.4
  * By Servant – https://www.servant.co
  * Copyright 2014 Servant
  * Authors: Austen Collins
@@ -10,6 +10,7 @@
  * Documentation Available @ https://developers.servant.co
  * 
  */
+
 
 (function(root) {
     // Establish root object, 'window' in the browser
@@ -20,7 +21,7 @@
     /**
      * Initialize The SDK
      */
-    Servant.initialize = function(options) {
+    Servant.initialize = function(options, callback) {
         /**
          * Check For Missing Options
          */
@@ -62,6 +63,9 @@
         } else {
             this.status = "no_token";
         }
+
+        // Render Callback If Included
+        if (callback) return callback(this.status);
     };
 
 
@@ -84,7 +88,7 @@
 
         if (this.status !== "has_token") return console.error('Servant SDK Error – The SDK has no Access Token');
 
-        var url = this._path + path + '?access_token=' + this._token;
+        var url = this._path + path;
 
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function() {
@@ -573,7 +577,10 @@
         }
 
         // Callback Errors
-        if (Object.keys(errors).length) return callback(errors, null);
+        if (Object.keys(errors).length) return callback({
+            error: "Validation Failed",
+            errors: errors
+        }, null);
         // Callback Valid
         return callback(null, instance);
 
@@ -591,13 +598,15 @@
         if (!failed) return console.error('Servant SDK Error – The saveArchetype() method requires a failed callback');
 
         if (instance._id && instance._id.length) {
-            this._callAPI('PUT', 'servants/' + servantID + '/archetypes/' + archetype + '/' + instance._id, instance, function(response) {
+            var url = 'servants/' + servantID + '/archetypes/' + archetype + '/' + instance._id + '?access_token=' + this._token;
+            this._callAPI('PUT', url, instance, function(response) {
                 success(response);
             }, function(error) {
                 failed(error);
             });
         } else {
-            this._callAPI('POST', 'servants/' + servantID + '/archetypes/' + archetype, instance, function(response) {
+            var url = 'servants/' + servantID + '/archetypes/' + archetype + '?access_token=' + this._token;
+            this._callAPI('POST', url, instance, function(response) {
                 success(response);
             }, function(error) {
                 failed(error);
@@ -616,7 +625,8 @@
         if (!success) return console.error('Servant SDK Error – The showArchetype() method requires a success callback');
         if (!failed) return console.error('Servant SDK Error – The showArchetype() method requires a failed callback');
 
-        this._callAPI('GET', 'servants/' + servantID + '/archetypes/' + archetype + '/' + archetypeID, null, function(response) {
+        var url = 'servants/' + servantID + '/archetypes/' + archetype + '/' + archetypeID + '?access_token=' + this._token;
+        this._callAPI('GET', url, null, function(response) {
             success(response);
         }, function(error) {
             failed(error);
@@ -630,11 +640,32 @@
         // Check Params
         if (!servantID) return console.error('Servant SDK Error – The queryArchetypes() method requires a servantID parameter');
         if (!archetype) return console.error('Servant SDK Error – The queryArchetypes() method requires an archetype parameter');
-        if (!criteria) return console.error('Servant SDK Error – The queryArchetypes() method requires an criteria parameter');
         if (!success) return console.error('Servant SDK Error – The queryArchetypes() method requires a success callback');
         if (!failed) return console.error('Servant SDK Error – The queryArchetypes() method requires a failed callback');
 
-        this._callAPI('GET', 'servants/' + servantID + '/archetypes/' + archetype, null, function(response) {
+        var url = 'servants/' + servantID + '/archetypes/' + archetype + '?access_token=' + this._token;
+        if (criteria) url = url + '&criteria=' + JSON.stringify(criteria);
+
+        this._callAPI('GET', url, null, function(response) {
+            success(response);
+        }, function(error) {
+            failed(error);
+        });
+    };
+
+    /**
+     * Delete an Archetype Record on Servant
+     */
+    Servant.deleteArchetype = function(servantID, archetype, archetypeID, success, failed) {
+        // Check Params
+        if (!servantID) return console.error('Servant SDK Error – The deleteArchetype() method requires a servantID parameter');
+        if (!archetype) return console.error('Servant SDK Error – The deleteArchetype() method requires an archetype parameter');
+        if (!archetypeID) return console.error('Servant SDK Error – The deleteArchetype() method requires an archetypeID parameter');
+        if (!success) return console.error('Servant SDK Error – The deleteArchetype() method requires a success callback');
+        if (!failed) return console.error('Servant SDK Error – The deleteArchetype() method requires a failed callback');
+
+        var url = 'servants/' + servantID + '/archetypes/' + archetype + '/' + archetypeID + '?access_token=' + this._token;
+        this._callAPI('DELETE', url, null, function(response) {
             success(response);
         }, function(error) {
             failed(error);
@@ -645,7 +676,8 @@
      * Gets User and their Servants which have given permission to this application
      */
     Servant.getUserAndServants = function(success, failed) {
-        this._callAPI('GET', 'servants', null, function(response) {
+        var url = 'servants?access_token=' + this._token;
+        this._callAPI('GET', url, null, function(response) {
             success(response);
         }, function(error) {
             failed(error);
