@@ -1,6 +1,6 @@
 {
     "name": "servant-sdk-js",
-    "version": "0.0.0",
+    "version": "0.2",
     "ignore":[
     	"server.js",
     	"README.md",
