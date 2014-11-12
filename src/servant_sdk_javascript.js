@@ -376,10 +376,10 @@
     Servant._validateArray = function(errors, rules, array, property) {
         // Function to create array errors
         var createArrayError = function(errors, arrayproperty, objectproperty, index, err) {
-            if (!errors[arrayproperty + '_array']) errors[arrayproperty + '_array'] = {};
-            if (!objectproperty) return errors[arrayproperty + '_array'][index] = err;
-            if (!errors[arrayproperty + '_array'][index]) errors[arrayproperty + '_array'][index] = {};
-            return errors[arrayproperty + '_array'][index][objectproperty] = err;
+            if (!errors[arrayproperty]) errors[arrayproperty] = {};
+            if (!objectproperty) return errors[arrayproperty][index] = err;
+            if (!errors[arrayproperty][index]) errors[arrayproperty][index] = {};
+            return errors[arrayproperty][index][objectproperty] = err;
         };
         var self = this;
         // Validate Array Root Schema
