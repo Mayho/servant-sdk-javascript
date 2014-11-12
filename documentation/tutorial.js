@@ -17,9 +17,19 @@ $(function() {
 
     Servant.initialize(SDKOptions);
 
-    if (Servant.isReady) {
+    if (Servant.status === "no_token") $('.not-connected').show();
+
+    if (Servant.status === "has_token") {
         // Scroll Down
-        window.scrollTo(0,400);
+        setTimeout(function() {
+            element = document.getElementById("anchor")
+            alignWithTop = true;
+            element.scrollIntoView(alignWithTop);
+        }, 1000);
+
+        // Show Connect Success Messages
+        $('.connected').show();
+        $('#connect-success').show();
 
         var data = {};
 
@@ -30,7 +40,7 @@ $(function() {
 
             // Check if user has servants
             if (!data.servants.length) return alert("You don't have any servants and these examples require you to have at least one.  Go to https:://servant.co and get a Servant.  Then you will be able to run these examples :)");
-            
+
             // Modify DOM
             $('#user').html(JSON.stringify(data.user, undefined, 4));
             $('#servants').html(JSON.stringify(data.servants, undefined, 4));
@@ -85,6 +95,6 @@ $(function() {
             $('#servants').html('Oops, something went wrong.  Check the console.');
         });
 
-    } // if (Servant.isReady)
+    } // if Servant.status === "has_token"
 
 });

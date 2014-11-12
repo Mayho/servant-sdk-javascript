@@ -6,6 +6,7 @@
     // Establish root object, 'window' in the browser
     root.Servant = root.Servant || {};
     var Servant = root.Servant;
+    Servant.status = "uninitialized";
 
     /**
      * Initialize The SDK
@@ -27,15 +28,15 @@
         this._scope = typeof options !== 'undefined' && typeof options.scope !== 'undefined' ? options.scope : 'full'; // AccessToken Scope:  Is it a FULL or LIMITED token?
         this._path = this._protocol + '://api' + this._version + '.servant.co/data/'; // API Path
         this._connectURL = 'https://www.servant.co/connect/oauth2/authorize?response_type=token&client_id=' + this._application_client_id;
-        this.isReady = true;
         // Set Token or Check For It In Window Location
         if (options && options.token) {
             this._token = options.token;
+            this.status = "has_token";
         } else if (root.location.hash.length && root.location.hash.indexOf('access_token=') > -1) {
             // Set Token whether it's FULL or LIMITED
             var hashData = JSON.parse('{"' + decodeURI(root.location.hash).replace('#', '').replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g, '":"') + '"}');
             this._token = this._scope === 'full' ? hashData.access_token : hashData.accessOtoken_limited;
-            this._userID = hashData.user_id;
+            this.status = "has_token";
             // Remove hash fragment from URL, new and old browsers
             var scrollV, scrollH, loc = window.location;
             if ("pushState" in history) {
@@ -50,7 +51,7 @@
                 document.body.scrollLeft = scrollH;
             }
         } else {
-            this.isReady = false;
+            this.status = "no_token";
         }
     };
 
@@ -72,7 +73,7 @@
      */
     Servant._callAPI = function(method, path, json, success, failed) {
 
-        if (!this.isReady) return console.error('Servant SDK Error – The SDK has no Access Token');
+        if (this.status !== "has_token") return console.error('Servant SDK Error – The SDK has no Access Token');
 
         var url = this._path + path + '?access_token=' + this._token;
 
