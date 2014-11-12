@@ -1,6 +1,6 @@
 {
     "name": "servant-sdk-js",
-    "version": "0.2",
+    "version": "0.4",
     "main": "src/servant_sdk_javascript.js",
     "ignore":[
     	"server.js",
