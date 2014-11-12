@@ -5,6 +5,7 @@
  * Documentation Available @ https://developers.servant.co
  * Copyright 2014 Servant
  * Authors: Austen Collins
+ * Contact: austen@servant.co
  * 
  */
 
