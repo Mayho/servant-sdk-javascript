@@ -3,6 +3,8 @@
  * Servant SDK Javascript for Client-Side Applications and Regular Web Pages
  * Servant – https://www.servant.co
  * Documentation Available @ https://developers.servant.co
+ * Copyright 2014 Servant
+ * Authors: Austen Collins
  * 
  */
 
