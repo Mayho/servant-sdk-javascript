@@ -1,5 +1,9 @@
 /**
- * Servant SDK Javascript for Client-Side Applications
+ * 
+ * Servant SDK Javascript for Client-Side Applications and Regular Web Pages
+ * Servant – https://www.servant.co
+ * Documentation Available @ https://developers.servant.co
+ * 
  */
 
 (function(root) {
