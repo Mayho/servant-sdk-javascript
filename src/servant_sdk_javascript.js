@@ -1,7 +1,7 @@
 /**
  * 
  * Servant SDK Javascript for Client-Side Applications and Regular Web Pages
- * Version: v0.0.2
+ * Version: v0.0.3
  * By Servant – https://www.servant.co
  * Copyright 2014 Servant
  * Authors: Austen Collins
