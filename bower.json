@@ -1,10 +1,9 @@
 {
-    "name": "servant-sdk-js",
-    "version": "0.0.1",
+    "name": "servant-sdk-javasscript",
+    "version": "0.0.2",
     "main": "src/servant_sdk_javascript.js",
     "ignore":[
     	"server.js",
-    	"README.md",
     	"index.html",
     	"archetypes.js",
     	".gitignore",
