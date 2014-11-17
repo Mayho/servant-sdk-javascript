@@ -1,5 +1,5 @@
 /**
- * 
+ *
  * Servant SDK Javascript for Client-Side Applications and Regular Web Pages
  * Version: v0.0.4
  * By Servant – https://www.servant.co
@@ -8,7 +8,7 @@
  * Contact: austen@servant.co
  *
  * Documentation Available @ https://developers.servant.co
- * 
+ *
  */
 
 
@@ -415,8 +415,12 @@
                 if (self._utilities.whatIs.call(self, item) !== 'object') {
                     createArrayError(errors, property, null, i, 'Invalid type.  Must be an object');
                 } else {
-                    // Check Required Fields
-                    var error = self._utilities._validators.required(rules.items.required, item);
+                    // Check Required Fields, If Required Fields Are Specified
+                    if (rules.items.required) {
+                        var error = self._utilities._validators.required(rules.items.required, item);
+                    } else {
+                        var error = null;
+                    }
                     if (error) {
                         for (prop in error) {
                             createArrayError(errors, property, prop, i, error[prop]);
