@@ -120,7 +120,7 @@
             self._archetypes[archetype] = response;
             callback(response);
         }, function(error) {
-            console.log(error);
+            callback(error);
         });
     };
 
