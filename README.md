@@ -48,6 +48,11 @@ This returns "uninitialized", "no_token", "has_token"
             
     }
 
+**Making A Connect Button with Servant.connect():**
+You can turn any button into a Connect Servant button using this method in an onClick event, like this:
+    
+    <button type="button" onclick="Servant.connect()">Connect Servant</button>
+
 **Servant.getUserAndServants(successCallback, errorCallback)**
 Fetches the account user and their Servants which your application has permission to.
 
