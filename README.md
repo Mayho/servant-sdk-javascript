@@ -12,6 +12,17 @@ For even more Documentation, check out  [Servant – Developers](https://develop
  - **Show/Query Archetype Records:** Show and Query Archetype Records kept on Servants
  - **Connect Method:**  Add the Connect Method to any element (i.e., a button) to make them Servant Connect buttons. 
 
+## Testing ##
+
+If you have Node installed, run
+
+    node server
+
+Then go to:
+
+    http://localhost:8080/
+
+
 ## How To Use ##
 
 For even more Documentation, check out  [Servant – Developers](https://developers.servant.co).   The Documentation there goes over installing and using the SDK, plus how to use it to build Client-Side Servant Applications.
@@ -24,7 +35,7 @@ For even more Documentation, check out  [Servant – Developers](https://develop
 Put this at the beginning of your application, before any other javascript logic if possible.  When a user is redirected to your website from the Servant Authorization screen, an access_token param is included as a hash fragment in the redirect URL.  This method is designed to quickly check for the token, cache it in the SDK, and remove it from the url.  So it's ideal to run this before your application's other logic.
 
     Servant.initialize({
-    application_client_id: 'Wy69Xg4QgAw16NIH'
+        application_client_id: 'Wy69Xg4QgAw16NIH'
     }, function(status) {
         console.log(status);
     });

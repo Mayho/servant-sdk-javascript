@@ -19,14 +19,42 @@
     Servant.status = "uninitialized";
 
     /**
-     * Initialize The SDK
+     *
+     *  Initialization
+     *
+     *  Options:
+     *
+     *  application_client_id       // CLIENT_ID of application registered on Servant
+     *  version                     // Api version integer.  0 is only option currently
+     *  protocol                    // 'http' or 'https'.  Defaults to 'http'
+     *  scope                       // 'full' to use read/write accesstoken or 'limited' to use read only accesstoken.  Defaults to 'full'
+     *  token                       // AccessToken
+     *  cache                       // Auto-Cache Servants and User data in SDK when fetched.   Defaults to true.
+     *  image_file_input_class      // Class of file input field for onchange listener
+     *  image_dropzone_class        // Class of dropzone elements for drop listener
+     *  image_preview_id            // ID of image preview container to which img elements will be appended
+     *  image_progress_class        // Class of progress element
+     *  image_queue_class           // Class of queue elements
+     *  image_success_callback      // Image upload success callback
+     *  image_failed_callback       // Image upload failed callback
+     *
      */
+
     Servant.initialize = function(options, callback) {
+        var self = this;
+
         /**
          * Check For Missing Options
          */
         if (!options) return console.error('Servant SDK Error – Please include the required options');
         if (!options.application_client_id) return console.error('Servant SDK Error – Please Include Your Application Client ID when initializing the SDK');
+
+        /**
+         * Expose Variables
+         */
+        this.user = null;
+        this.servants = null;
+        this.servant = null;
 
         /**
          * Set Options and Defaults
@@ -36,16 +64,26 @@
         this._version = typeof options !== 'undefined' && typeof options.version !== 'undefined' ? options.version : 0; // API Version
         this._protocol = typeof options !== 'undefined' && typeof options.protocol !== 'undefined' ? options.protocol : 'http'; // HTTP Protocol
         this._scope = typeof options !== 'undefined' && typeof options.scope !== 'undefined' ? options.scope : 'full'; // AccessToken Scope:  Is it a FULL or LIMITED token?
-        this._path = this._protocol + '://api' + this._version + '.servant.co/data/'; // API Path
+        this._cache = typeof options !== 'undefined' && typeof options.cache !== 'undefined' ? options.cache : true;
+        this._path = this._protocol + '://api' + this._version + '.servant.co'; // API Path
         this._connectURL = 'https://www.servant.co/connect/oauth2/authorize?response_type=token&client_id=' + this._application_client_id;
-        // Set Token or Check For It In Window Location
+        this._image_file_input_class = options.image_file_input_class || null;
+        this._image_dropzone_class = options.image_dropzone_class || null;
+        this._image_preview_id = options.image_preview_id || null;
+        this._image_queue_class = options.image_queue_class || null;
+        this._image_success_callback = options.image_success_callback || null;
+        this._image_failed_callback = options.image_failed_callback || null;
+
+        /**
+         * Set Token or Check For It In Window Location
+         */
         if (options && options.token) {
             this._token = options.token;
             this.status = "has_token";
         } else if (root.location.hash.length && root.location.hash.indexOf('access_token=') > -1) {
             // Set Token whether it's FULL or LIMITED
             var hashData = JSON.parse('{"' + decodeURI(root.location.hash).replace('#', '').replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g, '":"') + '"}');
-            this._token = this._scope === 'full' ? hashData.access_token : hashData.accessOtoken_limited;
+            this._token = this._scope === 'full' ? hashData.access_token : hashData.access_token_limited;
             this.status = "has_token";
             // Remove hash fragment from URL, new and old browsers
             var scrollV, scrollH, loc = window.location;
@@ -64,14 +102,42 @@
             this.status = "no_token";
         }
 
+        /**
+         * Initialize Image Uploading
+         */
+
+        // Add Listeners for all file inputs
+        if (this._image_file_input_class) {
+            var file_inputs = document.getElementsByClassName(this._image_file_input_class.replace('.', ''));
+            for (var i = 0; i < file_inputs.length; ++i) {
+                file_inputs[i].addEventListener("change", function() {
+                    self._saveImageArchetype(this.files);
+                }, false);
+            }
+        }
+        // Add Listeners for all dropzones
+        if (this._image_dropzone_class) {
+            var dropzones = document.getElementsByClassName(this._image_dropzone_class.replace('.', ''));
+            for (var i = 0; i < dropzones.length; ++i) {
+                dropzones[i].addEventListener("dragenter", function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                }, false);
+                dropzones[i].addEventListener("dragover", function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                }, false);
+                dropzones[i].addEventListener("drop", function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    self._saveImageArchetype(e.dataTransfer.files)
+                }, false);
+            }
+        }
+
         // Render Callback If Included
         if (callback) return callback(this.status);
     };
-
-
-
-
-
 
 
 
@@ -110,13 +176,14 @@
         }
     };
 
+
     /**
      * Fetches Archetype Scheme From Servant & Caches It In The SDK
      */
     Servant._addArchetypeSchema = function(archetype, callback) {
         var self = this;
 
-        this._callAPI('GET', 'archetypes/' + archetype, null, function(response) {
+        this._callAPI('GET', '/data/archetypes/' + archetype, null, function(response) {
             self._archetypes[archetype] = response;
             callback(response);
         }, function(error) {
@@ -389,8 +456,8 @@
         var keys = Object.keys(rules);
         var idx = keys.length;
         while (idx--) {
-            if (self._utilities._validators[keys[idx]]) {
-                var error = self._utilities._validators[keys[idx]].call(self, rules, array);
+            if (self._validators[keys[idx]]) {
+                var error = self._validators[keys[idx]].call(self, rules, array);
                 if (error) errors[property] = error;
             }
         };
@@ -399,14 +466,14 @@
         array.forEach(function(item, i) {
             if (rules.items.$ref) {
                 // Check if nested Archetype
-                var error = self._utilities._validateNestedArchetype(errors, rules.items, item);
+                var error = self._validateNestedArchetype(errors, rules.items, item);
                 if (error) createArrayError(errors, property, null, i, error);
             } else if (rules.items.type && rules.items.type !== 'object') {
                 // 
                 if (self._utilities.whatIs.call(self, item) !== rules.items.type) {
                     createArrayError(errors, property, null, i, 'Invalid type');
                 } else {
-                    var error = self._utilities._validateProperty(errors, rules.items, item, property);
+                    var error = self._validateProperty(errors, rules.items, item, property);
                     if (error) createArrayError(errors, property, null, i, error);
                 }
             } else if (rules.items.type && rules.items.type === 'object') {
@@ -417,7 +484,7 @@
                 } else {
                     // Check Required Fields, If Required Fields Are Specified
                     if (rules.items.required) {
-                        var error = self._utilities._validators.required(rules.items.required, item);
+                        var error = self._validators.required(rules.items.required, item);
                     } else {
                         var error = null;
                     }
@@ -443,8 +510,8 @@
                                 } else {
                                     // Other Validations
                                     while (idx3--) {
-                                        if (self._utilities._validators[keys3[idx3]]) {
-                                            var error = self._utilities._validators[keys3[idx3]].call(self, rules.items.properties[keys2[idx2]], item[keys2[idx2]]);
+                                        if (self._validators[keys3[idx3]]) {
+                                            var error = self._validators[keys3[idx3]].call(self, rules.items.properties[keys2[idx2]], item[keys2[idx2]]);
                                             if (error && (!errors[property] || !errors[property][i] || !errors[property][i][keys2[idx2]])) createArrayError(errors, property, keys2[idx2], i, error);
                                         }
                                     };
@@ -459,16 +526,61 @@
 
 
 
-
-
-
+    /**
+     *
+     *
+     *
+     *
+     *
+     *
+     * PUBLIC METHODS ------------------------------------------------------------------------------------
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     */
 
 
     /**
+     *  Set Servant
      *
-     * PUBLIC METHODS ------------------------------------------
+     *  Takes a String of a servant's ID or an Object containing a servant
      *
      */
+    Servant.setServant = function(servant) {
+        if (typeof servant !== 'string' && typeof servant !== 'object') return console.error('Servant SDK Error – Invalid parameter - servant must be a String of a servant ID or an Object of a servant');
+        if (typeof servant === 'object' && !servant._id) return console.error('Servant SDK Error – The servant you are trying to set does not have an _id property');
+        if (typeof servant === 'string') servant = {
+            _id: servant
+        };
+        this.servant = servant;
+    };
+
+    /**
+     *  Set Servants
+     */
+    Servant.setServants = function(servants) {
+        if (servants.constructor !== Array) return console.error('Servant SDK Error – Invalid parameter - servants must be an Array');
+        this.servants = servants;
+    };
+
+    /**
+     *  Set User
+     *
+     *  Takes a String of a user's ID or an Object containing a user
+     *
+     */
+    Servant.setUser = function(user) {
+        if (typeof user !== 'string' && typeof user !== 'object') return console.error('Servant SDK Error – Invalid parameter - user must be a String of a user ID or an Object of a user');
+        if (typeof user === 'object' && !user._id) return console.error('Servant SDK Error – The user you are trying to set does not have an _id property');
+        if (typeof user === 'string') user = {
+            _id: user
+        };
+        this.user = user;
+    };
 
     /**
      * Go to Connect URL
@@ -562,7 +674,6 @@
         var keys1 = Object.keys(instance);
         var idx1 = keys1.length;
         while (idx1--) {
-
             if (!archetype.properties[keys1[idx1]]) {
                 // Check If Allowed Property
                 errors[keys1[idx1]] = keys1[idx1] + ' is not allowed';
@@ -585,7 +696,7 @@
 
         // Callback Errors
         if (Object.keys(errors).length) return callback({
-            error: "Validation Failed",
+            error: "ValidationFailed",
             errors: errors
         }, null);
         // Callback Valid
@@ -593,26 +704,130 @@
 
     }; // Servant.validate
 
+
+
+    /**
+     *
+     *  Save Image Archetype
+     *  Create or Save an image archetype
+     *
+     */
+    Servant._saveImageArchetype = function(files) {
+        var self = this;
+        // Check if Servant is set
+        if (!self.servant) return console.error('Servant SDK Error – You have to set Servant.servant before you can upload images.  Use Servant.setServant(servant).');
+        // Check if browser supports FileAPI
+        if (window.FormData === undefined) return console.error('Servant SDK Error – This browser does not support the File API and cannot use this method to upload images');
+
+        // Upload Image Function
+        function imageUpload(previews, image_element, image_file, callback) {
+
+            // Check Type
+            if (['image/jpeg', 'image/jpg', 'image/png', 'image/gif'].indexOf(image_file.type) < 0) {
+                // Remove Preview
+                document.getElementById(self._image_preview_id).removeChild(image_element);
+                return callback({
+                    code: 'FileFormatNotAllowed',
+                    message: 'Image file type must be a JPEG, PNG or GIF'
+                }, null);
+            }
+            // Check File Size
+            if (image_file.size > 8000000) {
+                // Remove Preview
+                document.getElementById(self._image_preview_id).removeChild(image_element);
+                return callback({
+                    code: 'FileSizeError',
+                    message: 'Image file size must be less than 8 megabytes'
+                }, null);
+            }
+
+            var xhr = new XMLHttpRequest();
+            var formData = new FormData();
+
+            xhr.upload.onprogress = function(e) {
+                console.log("Progress: ", e.loaded, e.total, ((e.loaded / e.total) * 100));
+            };
+
+            xhr.onload = function() {
+                // Remove Preview
+                document.getElementById(self._image_preview_id).removeChild(image_element);
+                if (xhr.status == 200) {
+                    return callback(null, JSON.parse(xhr.responseText));
+                } else {
+                    return callback(JSON.parse(xhr.responseText), null);
+                }
+            };
+
+            xhr.onerror = function() {
+                // Remove Preview
+                document.getElementById(self._image_preview_id).removeChild(image_element);
+                return callback(JSON.parse(xhr.responseText, null));
+            };
+
+            xhr.open("POST", self._path + '/data/servants/' + self.servant._id + '/archetypes/image?access_token=' + self._token, true);
+            formData.append("uploads", image_file);
+            xhr.send(formData);
+        };
+
+        // Prepare Image Previews
+        if (this._image_preview_id) {
+            var image_preview_container = document.getElementById(this._image_preview_id);
+            // Loop through and create image previews
+            for (i = 0; i < files.length; i++) {
+                var img = document.createElement("img");
+                img.classList.add("image-archetype-preview");
+                img.file = files[i];
+                image_preview_container.appendChild(img);
+                var reader = new FileReader();
+                reader.onload = (function(aImg) {
+                    return function(e) {
+                        aImg.src = e.target.result;
+                    };
+                })(img);
+                reader.readAsDataURL(files[i]);
+            }
+        }
+
+        // Upload All Images
+        if (this._image_preview_id) {
+            var previews = true;
+            var images = document.querySelectorAll(".image-archetype-preview");
+        } else {
+            var previews = false;
+            var images = files;
+        }
+        for (i = 0; i < images.length; i++) {
+            new imageUpload(previews, images[i], images[i].file, function(error, response) {
+                // Callback
+                if (error) self._image_failed_callback(error);
+                self._image_success_callback(response);
+                // Check if needs to be removed from file input
+                
+            });
+        }
+    };
+
+
     /**
      * Save Archetype to Servant's API
      */
-    Servant.saveArchetype = function(servantID, archetype, instance, success, failed) {
+    Servant.saveArchetype = function(archetype, instance, success, failed) {
         // Check Params
-        if (!servantID) return console.error('Servant SDK Error – The saveArchetype() method requires a servantID parameter');
+        if (!this.servant) return console.error('Servant SDK Error – You have not set a servant to use.  Set the Servant.servant variable to the servant you would like to use');
         if (!archetype) return console.error('Servant SDK Error – The saveArchetype() method requires an archetype parameter');
         if (!instance) return console.error('Servant SDK Error – The saveArchetype() method requires an archetype instance to save');
         if (!success) return console.error('Servant SDK Error – The saveArchetype() method requires a success callback');
         if (!failed) return console.error('Servant SDK Error – The saveArchetype() method requires a failed callback');
 
         if (instance._id && instance._id.length) {
-            var url = 'servants/' + servantID + '/archetypes/' + archetype + '/' + instance._id + '?access_token=' + this._token;
+            var url = '/data/servants/' + this.servant._id + '/archetypes/' + archetype + '/' + instance._id + '?access_token=' + this._token;
             this._callAPI('PUT', url, instance, function(response) {
                 success(response);
             }, function(error) {
                 failed(error);
             });
         } else {
-            var url = 'servants/' + servantID + '/archetypes/' + archetype + '?access_token=' + this._token;
+            var url = '/data/servants/' + this.servant._id + '/archetypes/' + archetype + '?access_token=' + this._token;
             this._callAPI('POST', url, instance, function(response) {
                 success(response);
             }, function(error) {
@@ -621,18 +836,19 @@
         }
     };
 
+
     /**
      * Show an Archetype Record on Servant
      */
-    Servant.showArchetype = function(servantID, archetype, archetypeID, success, failed) {
+    Servant.showArchetype = function(archetype, archetypeID, success, failed) {
         // Check Params
-        if (!servantID) return console.error('Servant SDK Error – The showArchetype() method requires a servantID parameter');
+        if (!this.servant) return console.error('Servant SDK Error – You have not set a servant to use.  Set the Servant.servant variable to the servant you would like to use');
         if (!archetype) return console.error('Servant SDK Error – The showArchetype() method requires an archetype parameter');
         if (!archetypeID) return console.error('Servant SDK Error – The showArchetype() method requires an archetypeID parameter');
         if (!success) return console.error('Servant SDK Error – The showArchetype() method requires a success callback');
         if (!failed) return console.error('Servant SDK Error – The showArchetype() method requires a failed callback');
 
-        var url = 'servants/' + servantID + '/archetypes/' + archetype + '/' + archetypeID + '?access_token=' + this._token;
+        var url = '/data/servants/' + this.servant._id + '/archetypes/' + archetype + '/' + archetypeID + '?access_token=' + this._token;
         this._callAPI('GET', url, null, function(response) {
             success(response);
         }, function(error) {
@@ -643,14 +859,14 @@
     /**
      * Query Archetype Records On Servant
      */
-    Servant.queryArchetypes = function(servantID, archetype, criteria, success, failed) {
+    Servant.queryArchetypes = function(archetype, criteria, success, failed) {
         // Check Params
-        if (!servantID) return console.error('Servant SDK Error – The queryArchetypes() method requires a servantID parameter');
+        if (!this.servant) return console.error('Servant SDK Error – You have not set a servant to use.  Set the Servant.servant variable to the servant you would like to use');
         if (!archetype) return console.error('Servant SDK Error – The queryArchetypes() method requires an archetype parameter');
         if (!success) return console.error('Servant SDK Error – The queryArchetypes() method requires a success callback');
         if (!failed) return console.error('Servant SDK Error – The queryArchetypes() method requires a failed callback');
 
-        var url = 'servants/' + servantID + '/archetypes/' + archetype + '?access_token=' + this._token;
+        var url = '/data/servants/' + this.servant._id + '/archetypes/' + archetype + '?access_token=' + this._token;
         if (criteria) url = url + '&criteria=' + JSON.stringify(criteria);
 
         this._callAPI('GET', url, null, function(response) {
@@ -663,15 +879,15 @@
     /**
      * Delete an Archetype Record on Servant
      */
-    Servant.deleteArchetype = function(servantID, archetype, archetypeID, success, failed) {
+    Servant.deleteArchetype = function(archetype, archetypeID, success, failed) {
         // Check Params
-        if (!servantID) return console.error('Servant SDK Error – The deleteArchetype() method requires a servantID parameter');
+        if (!this.servant) return console.error('Servant SDK Error – You have not set a servant to use.  Set the Servant.servant variable to the servant you would like to use');
         if (!archetype) return console.error('Servant SDK Error – The deleteArchetype() method requires an archetype parameter');
         if (!archetypeID) return console.error('Servant SDK Error – The deleteArchetype() method requires an archetypeID parameter');
         if (!success) return console.error('Servant SDK Error – The deleteArchetype() method requires a success callback');
         if (!failed) return console.error('Servant SDK Error – The deleteArchetype() method requires a failed callback');
 
-        var url = 'servants/' + servantID + '/archetypes/' + archetype + '/' + archetypeID + '?access_token=' + this._token;
+        var url = '/data/servants/' + this.servant._id + '/archetypes/' + archetype + '/' + archetypeID + '?access_token=' + this._token;
         this._callAPI('DELETE', url, null, function(response) {
             success(response);
         }, function(error) {
@@ -683,14 +899,38 @@
      * Gets User and their Servants which have given permission to this application
      */
     Servant.getUserAndServants = function(success, failed) {
-        var url = 'servants?access_token=' + this._token;
+        var self = this;
+        var url = '/data/servants?access_token=' + this._token;
         this._callAPI('GET', url, null, function(response) {
-            success(response);
+            if (self._cache) {
+                self.setUser(response.user);
+                self.setServants(response.servants);
+            }
+            return success(response);
         }, function(error) {
-            failed(error);
+            return failed(error);
         });
     };
 
+    /**
+     * Show Servant
+     */
+    Servant.showServant = function(servantID, success, failed) {
+        var self = this;
+        var url = '/data/servants/' + servantID + '?access_token=' + this._token;
+        this._callAPI('GET', url, null, function(response) {
+            if (self._cache) {
+                self.setServant(response);
+            }
+            return success(response);
+        }, function(error) {
+            return failed(error);
+        });
+    };
+
+    /**
+     * SHOW SERVANT TODO
+     */
 }(this));
 
 

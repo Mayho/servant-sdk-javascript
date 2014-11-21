@@ -1,235 +1,101 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
 <html>
 
 <head>
-    <!-- This is a very basic example -->
-    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
-    <meta charset="utf-8">
-    <title>How To Build Front-End Servant Applications</title>
-    <link rel="stylesheet" href='https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.2.0/animate.min.css'>
-    <link rel="stylesheet" href="documentation/documentation.css">
-    <script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
-    <script type='text/javascript' src="src/servant_sdk_javascript.js"></script>
-    <script type='text/javascript' src="documentation/documentation.js"></script>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Servant Javascript SDK Tests</title>
+
+    <link rel="shortcut icon" type="image/png" href="test/lib/jasmine-2.0.2/jasmine_favicon.png">
+    <link rel="stylesheet" type="text/css" href="test/lib/jasmine-2.0.2/jasmine.css">
+
+    <script type="text/javascript" src="test/lib/jasmine-2.0.2/jasmine.js"></script>
+    <script type="text/javascript" src="test/lib/jasmine-2.0.2/jasmine-html.js"></script>
+    <script type="text/javascript" src="test/lib/jasmine-2.0.2/boot.js"></script>
+
+    <!-- Servant SDK Source Files -->
+    <script type="text/javascript" src="src/servant_sdk_javascript.js"></script>
+    <!-- Archetypes -->
+    <script type="text/javascript" src="test/spec/specs.js"></script>
+
 </head>
 
 <body>
-
-    <div id="documentation-container">
-
-        <!-- Documentation Navigation -->
-        <div id="documentation-navigation-container">
-            <div id="documentation-navigation">
-                <h1 class="st-font documentation-title">Documentation</h1>
+    <div id="connect-notice" style="margin:50px 0px;text-align:center">
+        <h1 style="margin-bottom:35px;font-family:arial,sans-serif;">Connect Your Servant To Run These Tests</h1>
+        <p>
+            <!-- Servant Connect Button Styles -->
+            <style type="text/css">
+            #servant-connect-button {
+                background: #e8544c;
+                color: #ffffff;
+                border: none;
+                padding: 15px 20px;
+                font-family: 'Lucida Grande', sans-serif;
+                font-weight: 400;
+                font-size: 20px;
+                -webkit-font-smoothing: antialiased;
+                -webkit-box-shadow: 0px 3px 0px 0px #c4443d;
+                box-shadow: 0px 3px 0px 0px #c4443d;
+                -webkit-border-radius: 3px;
+                border-radius: 3px;
+                -webkit-transition: all 0.3s ease-out;
+                -moz-transition: all 0.3s ease-out;
+                -ms-transition: all 0.3s ease-out;
+                -o-transition: all 0.3s ease-out;
+                transition: all 0.3s ease-out;
+                text-decoration: none;
+            }
+            #servant-connect-button:hover {
+                cursor: pointer;
+                background: #ff6d65;
+                color: #ffffff;
+                text-decoration: none;
+            }
+            #servant-connect-button:active {
+                position: relative;
+                top: 2.5px;
+                text-decoration: none;
+            }
+            </style>
+            <!-- Servant Connect Button  -->
+            <a id="servant-connect-button" href="https://www.servant.co/connect/oauth2/authorize?response_type=token&client_id=O4x9SPs5bcp6h3pO">Connect Servant</a>
+        </p>
+    </div>
+    <div id="imagearchetype-test" style="display:none;width:100%;">
+        <p>
+            File Input For Testing saveImageArchetype() method - Try this after tanks
+        </p>
+        <style type="text/css">
+        #image-preview-container img {
+            background: #fff;
+            padding: 4px;
+            border: 1px solid #bbb;
+            max-height: 20px;
+            max-width: 20px;
+            margin: 6px;
+        }
+        .image-preview-active {
+            display: block!important;
+        }
+        </style>
+        <div style="height:90px;display:block;margin-bottom:8px;">
+            <div id="image-preview-container" style="float:left;position:relative;width:20%;height:90px;">
+            </div>
+            <div style="float:left;position:relative;width:20%;height:90px;">
+                <input class="image-input" type="file" multiple>
+            </div>
+            <div style="float:left;position:relative;width:20%;height:90px;">
+                <input class="image-input" type="file" multiple>
+            </div>
+            <div class="image-dropzone" style="float:left;position:relative;width:20%;height:90px;background:rgba(0,0,0,0.2);text-align:center;">
+                  Dropzone 1
+            </div>
+            <div class="image-dropzone" style="float:left;position:relative;width:20%;height:90px;background:rgba(0,0,0,0.1);text-align:center;">
+                  Dropzone 2
             </div>
         </div>
-
-        <!-- Documentation Content  -->
-        <div id="documentation-content-container">
-            <div id="documentation-content">
-
-                <div id="logo-container">
-                    <img id="logo" src="https://d37xmz74lm0b1x.cloudfront.net/img/logo_tutorials_a.png" draggable="false">
-                </div>
-
-                <h1 style="margin-bottom:30px;font-size:36px;">How To Build Front-End Servant Applications & Make Money</h1>
-
-                <p class="tip">
-                    This guide walks you through how to build front-end applications that connect to <a href="https://www.servant.co" target="_blank">Servant</a> using the Servant Javascript SDK, and gives you ideas on how to monetize them.
-                </p>
-
-                <p class="tip">
-                    "Web pages", "client-side" or "front-end applications" all refer to the same thing: a single web page that changes its content via Javascript. This entire guide is a "front-end" Servant Application and you must connect your Servant to it to view the examples. If you don't have a Servant, <a href="https://www.servant.co" target="_blank">get one here</a>.
-                </p>
-
-                <p class="tip">
-                    Since Servant pays developers for the Serves (API Requests) their applications generate, and since this guide is a Servant Application, we get paid when you connect your Servant to view these examples. We've effictively monetized our documentation. The point of this is to start you thinking about the new types of business models Servant enables while you are building your applications. Applications that normally couldn't be monetized (like documentation) can now make money. All that is required is that your application interacts with a User's data in a way that is valueable.
-                </p>
-
-                <p class="tip">
-                    If you get stuck and need help, go to the <a href="https://www.hipchat.com/grXCavfpe" target="_blank">Servant Chat Room</a> and ask the Servant team. They are there to help :)
-                </p>
-
-
-                <h2 class="chapter">
-                    Register Your Application On Servant
-                </h2>
-
-                <p class="tip">
-                    Register your application in the Developers section of <a href="https://www.servant.co" target="_blank">Servant</a>. Set the REDIRECT_URL to be the URL of your application. If you are just making a test application, check the DEVELOPMENT_MODE box so you can enter your local urls (like "localhost:8080" for the DOMAIN and http://localhost:8080 for the REDIRECT_URL). You don't need another route to use for the REDIRECT_URL, simply enter the basic url of your website, and we'll show you how to do everything via one route.
-                </p>
-
-                <h2 class="chapter">
-                    Import The Servant Javascript SDK Into Your Web Page
-                </h2>
-
-                <p class="tip">
-                    If you have bower, you can run the following:
-                </p>
-
-                <p class="well">
-                    bower install servant-sdk-js
-                </p>
-
-                <p class="tip">
-                    Otherwise, you can always download the Servant Javascript SDK from its <a href="https://github.com/servant-cmes/servant-sdk-javascript" target="_blank">Github Repo here</a>.
-                </p>
-                <p class="tip">
-                    In the HTML of your application, before the closing &lt;/body&gt; tag, but before your application's own javascript logic, add in the Servant SDK, like this:
-                </p>
-                <p class="well">
-                    &lt;script type="text/javascript" src="servant_sdk_javascript.js"&gt;&lt;/script&gt;
-                </p>
-
-
-                <h2 class="chapter">
-                    Determine If The SDK Is Working
-                </h2>
-                <p class="tip">
-                    To check if the SDK is working, at the beginning of your application's javascript, run this:
-                </p>
-                <p class="well">
-                    console.log(Servant.status);
-                </p>
-                <h2 class="method">
-                    Servant.status
-                </h2>
-                <p class="tip">
-                    This SDK method returns either "uninitialized", "no_token" or "has_token". If the SDK is working, it should return one of those three options in your console. If it shows up as UNDEFINED, then something has gone wrong with your inclusion of the SDK javascript file in your application.
-                </p>
-
-                <p class="tip">
-                    This SDK method is helpful in telling your application when you should be showing a "Connect Servant" button or when you have a Servant Acces Token and can start interacting with a User's data. You can show different content depending on whether or not Servant.status is "uninitialized", "no_token" or "has_token", like this:
-                </p>
-                <p class="well">
-                    <span class="not-connected" style="display:none;color:#e06262">
-                        Servant.status equals "no_token" Meaning, you have not connected your Servant to this web page
-                    </span>
-                    <span class="connected" style="display:none;color:#4a9c3c;">
-                        Servant.status equals "has_token" Meaning, you have connected your Servant to this web page
-                    </span>
-                </p>
-
-                <h2 class="chapter">
-                    Initialize The Servant SDK
-                </h2>
-                <h2 class="method">
-                    Servant.initialize(options)
-                </h2>
-                <p class="tip">
-                    Run the Servant.initialize() method at the beginning of your application before using any other method in the SDK. You can pass a few options into this method, but the only one that is required is application_client_id, which is the CLIENT_ID of your registered application on Servant. Go copy that and enter it into the Servant.initialize() method like this:
-                </p>
-                <p class="well">
-                    Servant.initialize({ application_client_id: 'Paste Your CLIENT_ID Here'})
-                </p>
-                <p class="tip">
-                    Now, you are ready to start connecting people's Servants to your application!
-                </p>
-
-
-                <h2 class="chapter">
-                    Add A Connect Button
-                </h2>
-                <p class="tip">
-                    Any element in your application can become a 'Connect Servant' button. However, stick with what people will recognize, and that is a big, red, "Connect Servant" button. Here is some HTML you can copy and paste in your application to create a "Connect Servant" button people will recognize:
-                </p>
-                <p class="well">
-                    <!-- Servant Connect Button Styles -->
-                    &lt;style type="text/css"&gt; #servant-connect-button { background: #e8544c; color: #ffffff; border: none; padding: 10px 12px; font-family: 'Lucida Grande', sans-serif; font-weight: 400; font-size: 16px; -webkit-font-smoothing: antialiased; -webkit-box-shadow: 0px 3px 0px 0px #c4443d; box-shadow: 0px 3px 0px 0px #c4443d; -webkit-border-radius: 3px; border-radius: 3px; -webkit-transition: all 0.3s ease-out; -moz-transition: all 0.3s ease-out; -ms-transition: all 0.3s ease-out; -o-transition: all 0.3s ease-out; transition: all 0.3s ease-out; } #servant-connect-button:hover { cursor: pointer; background: #ff6d65; color: #ffffff; } #servant-connect-button:active { position: relative; top: 2.5px; } &lt;/style&gt;
-                    <!-- Servant Connect Button -->
-                    &lt;button id="servant-connect-button" onclick="Servant.connect()"&gt;Connect Servant&lt;/button&gt;
-                </p>
-
-
-
-                <h2 id="anchor" class="method">
-                    Servant.connect()
-                </h2>
-                <p class="tip">
-                    Add onclick="Servant.connect()" to your html button to make it a 'Connect Servant' button. After someone clicks the button, they will be redirected to Servant to authorize your application. If they don't have a Servant, they can register and get one in the authorization screen, then they will be redirected back to your application with their new Servant.
-                </p>
-                <p class="tip st-bold">
-                    Now, click the button to connect your Servant to this guide and populate the next examples:
-                </p>
-                <p>
-                    <button class="btn btn-primary" onclick="Servant.connect()">Connect Servant</button>
-                </p>
-                <p id="connect-success" style="display:none;">
-                    <h3 style="">Success!</h3>
-                    Success! You have connected your Servant and this Guide has come alive with examples!
-                </p>
-
-
-                <h2 class="chapter">
-                    Automatic Functions Of The SDK That Run After Connecting
-                </h2>
-                <h2 class="method">
-                    Servant.initialize(options)
-                </h2>
-                <p class="tip">
-                    Just saved the access_token into the SDK from the URL parameters and removed it from the URL
-                </p>
-
-                <h2 class="method">
-                    Servant.getUserAndServants()
-                </h2>
-                <p class="tip">
-                    Gets the User's information as well as all of the Servants that have given permission to this application
-                </p>
-                <h4>User</h4>
-                <p id="user" class="well">Connect your Servant to see this...</p>
-                <h4>Servants</h4>
-                <p id="servants" class="well">Connect your Servant to see this...</p>
-
-                <h2 class="method">Servant.instantiate(archetype)</h2>
-                <p class="tip">
-                    Instantiates a new Archetype as an object with all of the properties available
-                </p>
-                <p>Create A New Product Instance using Servant.instantiate('product')</p>
-                <p id="product-instance" class="well">Connect your Servant to see this...</p>
-
-                <h2 class="method">Servant.validate(archetype, instance, callback)</h2>
-                <p class="tip">
-                    Validates an instance of an Archetype locally without sending it to Servant.
-                </p>
-                <p class="tip">
-                    Let's validate the default instance we created with Servant.instantiate(): Servant.validate('product', instance, funciton(error, result) {}); Here is the result:
-                </p>
-                <p id="product-validated1" class="well">Connect your Servant to see this...</p>
-                <p class="tip">
-                    Validation failed because the Servant.instantiate() instance doesn't add values, only the properties available in the archetype. So we have to add some properties in. Let's give values to the "name", "price" and "seller" properties and run the Servant.validate() method again.
-                </p>
-                <p id="product-validated2" class="well">Connect your Servant to see this...</p>
-                <p class="tip">
-                    No errors appeared and the product instance passed through perfectly. Now we can post the product to Servant's API.
-                </p>
-
-                <h2 class="method">Servant.saveArchetype(servantID, archetype, instance, success, failed)</h2>
-                <p class="tip">
-                    Saves an instance of an Archetype to a Servant via the API. If the instance has an "_id" it will be updated, if not, it will be created.
-                </p>
-                <p>Since our product instance is valid, we should be able to save it to Servant's database without any problems</p>
-                <p id="product-saved" class="well">Connect your Servant to see this...</p>
-                <p>Notice we now have an "_id" property. Which we can use to update the product via the same method...</p>
-                <p class="tip">
-                    Let's update the product "name" and save it using the same Servant.saveArchetype() method
-                </p>
-                <p id="product-updated" class="well">Connect your Servant to see this...</p>
-
-                <h2 class="method">Servant.showArchetype(servantID, archetype, archetypeID, success, failed)</h2>
-                <p class="tip">
-                    Fetches an Archetype record from Servant via the API. Let's show the product we've created.
-                </p>
-                <p id="product-show" class="well">Connect your Servant to see this...</p>
-
-            </div>
-            <!-- #documentation-content -->
-
-        </div>
-        <!-- #documentation-content -->
 
     </div>
-    <!-- #documentation-container -->
 </body>
 
 </html>
