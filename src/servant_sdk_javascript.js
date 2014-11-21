@@ -12,15 +12,22 @@
  */
 
 
+
+
+
 (function(root) {
+
     // Establish root object, 'window' in the browser
     root.Servant = root.Servant || {};
     var Servant = root.Servant;
     Servant.status = "uninitialized";
 
+
+
+
     /**
      *
-     *  Initialization
+     *  Initialization ------------------------------------------------------------------------------------
      *
      *  Options:
      *
@@ -34,13 +41,15 @@
      *  image_dropzone_class        // Class of dropzone elements for drop listener
      *  image_preview_id            // ID of image preview container to which img elements will be appended
      *  image_progress_class        // Class of progress element
-     *  image_queue_class           // Class of queue elements
      *  image_success_callback      // Image upload success callback
      *  image_failed_callback       // Image upload failed callback
+     *  image_progress_callback     // Image progress callback.  Returns percentage, bytes loaded, bytes total as params
      *
      */
 
+
     Servant.initialize = function(options, callback) {
+
         var self = this;
 
         /**
@@ -70,9 +79,9 @@
         this._image_file_input_class = options.image_file_input_class || null;
         this._image_dropzone_class = options.image_dropzone_class || null;
         this._image_preview_id = options.image_preview_id || null;
-        this._image_queue_class = options.image_queue_class || null;
         this._image_success_callback = options.image_success_callback || null;
         this._image_failed_callback = options.image_failed_callback || null;
+        this._image_progress_callback = options.image_progress_callback || null;
 
         /**
          * Set Token or Check For It In Window Location
@@ -143,7 +152,18 @@
 
     /**
      *
-     * INTERNAL METHODS ------------------------------------------
+     *
+     *
+     *
+     *
+     *
+     * INTERNAL METHODS ------------------------------------------------------------------------------------
+     *
+     *
+     *
+     *
+     *
+     *
      *
      */
 
@@ -713,6 +733,7 @@
      *
      */
     Servant._saveImageArchetype = function(files) {
+        console.log(files)
         var self = this;
         // Check if Servant is set
         if (!self.servant) return console.error('Servant SDK Error – You have to set Servant.servant before you can upload images.  Use Servant.setServant(servant).');
@@ -725,7 +746,7 @@
             // Check Type
             if (['image/jpeg', 'image/jpg', 'image/png', 'image/gif'].indexOf(image_file.type) < 0) {
                 // Remove Preview
-                document.getElementById(self._image_preview_id).removeChild(image_element);
+                if (self._image_preview_id) document.getElementById(self._image_preview_id).removeChild(image_element);
                 return callback({
                     code: 'FileFormatNotAllowed',
                     message: 'Image file type must be a JPEG, PNG or GIF'
@@ -734,7 +755,7 @@
             // Check File Size
             if (image_file.size > 8000000) {
                 // Remove Preview
-                document.getElementById(self._image_preview_id).removeChild(image_element);
+                if (self._image_preview_id) document.getElementById(self._image_preview_id).removeChild(image_element);
                 return callback({
                     code: 'FileSizeError',
                     message: 'Image file size must be less than 8 megabytes'
@@ -745,12 +766,13 @@
             var formData = new FormData();
 
             xhr.upload.onprogress = function(e) {
-                console.log("Progress: ", e.loaded, e.total, ((e.loaded / e.total) * 100));
+                self._image_progress_callback(((e.loaded / e.total) * 100), e.loaded, e.total);
             };
 
             xhr.onload = function() {
                 // Remove Preview
-                document.getElementById(self._image_preview_id).removeChild(image_element);
+                if (self._image_preview_id) document.getElementById(self._image_preview_id).removeChild(image_element);
+                // Queue Callback
                 if (xhr.status == 200) {
                     return callback(null, JSON.parse(xhr.responseText));
                 } else {
@@ -760,7 +782,8 @@
 
             xhr.onerror = function() {
                 // Remove Preview
-                document.getElementById(self._image_preview_id).removeChild(image_element);
+                if (self._image_preview_id) document.getElementById(self._image_preview_id).removeChild(image_element);
+                // Queue Callback
                 return callback(JSON.parse(xhr.responseText, null));
             };
 
@@ -796,15 +819,44 @@
             var previews = false;
             var images = files;
         }
-        for (i = 0; i < images.length; i++) {
-            new imageUpload(previews, images[i], images[i].file, function(error, response) {
-                // Callback
-                if (error) self._image_failed_callback(error);
-                self._image_success_callback(response);
-                // Check if needs to be removed from file input
-                
-            });
+
+        var image_counter = 0;
+
+        function imageQueue() {
+            // Check if finished
+            if (image_counter >= images.length) {
+                // Clear File Inputs
+                var file_inputs = document.querySelectorAll('.' + self._image_file_input_class);
+                for (i = 0; i < file_inputs.length; i++) {
+                    var oldInput = file_inputs[i];
+                    var newInput = document.createElement("input");
+                    newInput.type = "file";
+                    newInput.multiple = true;
+                    newInput.className = self._image_file_input_class;
+                    oldInput.parentNode.replaceChild(newInput, oldInput);
+                    newInput.addEventListener("change", function() {
+                        self._saveImageArchetype(this.files);
+                    }, false);
+                }
+            } else {
+                // Upload
+                new imageUpload(previews, images[image_counter], images[image_counter].file, function(error, response) {
+                    // Callback
+                    if (error) self._image_failed_callback(error);
+                    self._image_success_callback(response);
+                    // Run Again?
+                    if (image_counter < images.length + 1) {
+                        imageQueue();
+                    }
+                });
+                // Increment Counter
+                image_counter = image_counter + 1;
+            }
         }
+
+        // Start ImageQueue
+        imageQueue()
+
     };
 
 
@@ -928,9 +980,6 @@
         });
     };
 
-    /**
-     * SHOW SERVANT TODO
-     */
 }(this));
 
 

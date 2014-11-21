@@ -11,6 +11,14 @@ function imageFailedCallback(error) {
     console.log(error);
 };
 
+function imageProgressCallback(progress, loaded, total) {
+    console.log("Image Upload Progress: ", progress, loaded, total);
+};
+
+function imageQueueCallback(queue_number) {
+    console.log("Image Queue: ", queue_number);
+};
+
 /**
  * Tests
  */
@@ -29,7 +37,9 @@ describe("Test Servant Javascript SDK --- ", function() {
                 image_dropzone_class: 'image-dropzone',
                 image_preview_id: 'image-preview-container',
                 image_success_callback: imageSuccessCallback,
-                image_failed_callback: imageFailedCallback
+                image_failed_callback: imageFailedCallback,
+                image_progress_callback: imageProgressCallback,
+                image_queue_callback: imageQueueCallback
             }, function(status) {
                 // Remove Connect Notice
                 if (status === 'has_token') {
@@ -346,7 +356,7 @@ describe("Test Servant Javascript SDK --- ", function() {
 
 
 
-
+    // Old tests below.  Some tests stress the validate method well and should be refactored.
 
 
 
