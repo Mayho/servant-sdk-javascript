@@ -294,6 +294,28 @@ describe("Test Servant Javascript SDK --- ", function() {
 
     });
 
+    describe("Querying Archetype Records Without Criteria", function() {
+
+        beforeEach(function(done) {
+
+            Servant.queryArchetypes('product', function(products) {
+                testData.products = products;
+                done();
+            }, function(error) {
+                testData.error = error;
+                done();
+            });
+        });
+
+        it("Querying Archetype Records", function() {
+            expect(testData.products).toBeDefined();
+            expect(testData.products.records[0].name).toEqual('Test Product Has Been Updated');
+            expect(testData.error).toEqual(null);
+            console.log('Querying Archetype Records Without Criteria', testData.error, testData.products);
+        });
+
+    });
+
 
     /**
      * Showing

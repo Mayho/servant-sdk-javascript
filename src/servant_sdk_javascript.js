@@ -1,7 +1,7 @@
 /**
  *
  * Servant SDK Javascript for Client-Side Applications and Regular Web Pages
- * Version: v1.0.1
+ * Version: v1.0.2
  * By Servant – https://www.servant.co
  * Copyright 2014 Servant
  * Authors: Austen Collins
@@ -914,15 +914,15 @@
     Servant.queryArchetypes = function(archetype, criteria, success, failed) {
         // Check Params
         if (!this.servant) return console.error('Servant SDK Error – You have not set a servant to use.  Set the Servant.servant variable to the servant you would like to use');
-        if (!archetype) return console.error('Servant SDK Error – The queryArchetypes() method requires an archetype parameter');
-        if (!success) return console.error('Servant SDK Error – The queryArchetypes() method requires a success callback');
-        if (!failed) return console.error('Servant SDK Error – The queryArchetypes() method requires a failed callback');
         // Fix variable assignment
-        if (typeof criteria === 'function'  && !failed) {
+        if (typeof criteria === 'function' && !failed) {
             failed = success;
             success = criteria;
             criteria = false;
         }
+        if (!archetype) return console.error('Servant SDK Error – The queryArchetypes() method requires an archetype parameter');
+        if (!success) return console.error('Servant SDK Error – The queryArchetypes() method requires a success callback');
+        if (!failed) return console.error('Servant SDK Error – The queryArchetypes() method requires a failed callback');
         // Build URL
         var url = '/data/servants/' + this.servant._id + '/archetypes/' + archetype + '?access_token=' + this._token;
         if (criteria) url = url + '&criteria=' + JSON.stringify(criteria);
