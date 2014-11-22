@@ -917,10 +917,16 @@
         if (!archetype) return console.error('Servant SDK Error – The queryArchetypes() method requires an archetype parameter');
         if (!success) return console.error('Servant SDK Error – The queryArchetypes() method requires a success callback');
         if (!failed) return console.error('Servant SDK Error – The queryArchetypes() method requires a failed callback');
-
+        // Fix variable assignment
+        if (typeof criteria === 'function'  && !failed) {
+            failed = success;
+            success = criteria;
+            criteria = false;
+        }
+        // Build URL
         var url = '/data/servants/' + this.servant._id + '/archetypes/' + archetype + '?access_token=' + this._token;
         if (criteria) url = url + '&criteria=' + JSON.stringify(criteria);
-
+        // Call API
         this._callAPI('GET', url, null, function(response) {
             success(response);
         }, function(error) {
