@@ -40,7 +40,6 @@
      *  image_file_input_class      // Class of file input field for onchange listener
      *  image_dropzone_class        // Class of dropzone elements for drop listener
      *  image_preview_id            // ID of image preview container to which img elements will be appended
-     *  image_progress_class        // Class of progress element
      *  image_success_callback      // Image upload success callback
      *  image_failed_callback       // Image upload failed callback
      *  image_progress_callback     // Image progress callback.  Returns percentage, bytes loaded, bytes total as params

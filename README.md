@@ -11,6 +11,8 @@ For even more Documentation, check out  [Servant – Developers](https://develop
  - **Save/Update Archetype Records:** Save and Update Archetype Records easily
  - **Show/Query Archetype Records:** Show and Query Archetype Records kept on Servants
  - **Connect Method:**  Add the Connect Method to any element (i.e., a button) to make them Servant Connect buttons. 
+ - **Image Archetype Upload Dropzones, Previews, Progress, and more:**  The initialize method features tons of parameters allowing you to create Image Archetype upload dropzones, file inputs, image upload previews and progress percentages.
+
 
 ## Testing ##
 
@@ -42,17 +44,32 @@ Put this at the beginning of your application, before any other javascript logic
 
 Options:
 
-    application_client_id: 'jasf98asfasf8a568asf',
-    // Required - String - CLIENT_ID from app registered on Servant
-    version: 0,
-    // Optional - Integer - Must be set to 0
-    protocol: 'https',
-    // Optional - String - 'http' or 'https'
-    scope: 'full',
-    // Optional - String - 'full' or 'limited' - IMPORTANT: When you authorize, you are given two access_tokens.  One has full Read/Write access, the other is has only Read access.  If you are passing AccessTokens through to the general public (e.g., A front-end app that shows Servant content to the general public and not only to the Servant account owner), use the 'limited' access_token.  It's more secure.
-        
+   **application_client_id:** 'jasf98asfasf8a568asf',
+    Required - String - CLIENT_ID from app registered on Servant
+    **version:** 0,
+    Optional - Integer - Must be set to 0
+    **protocol:** 'https',
+    Optional - String - 'http' or 'https'
+    **scope:** 'full',
+    Optional - String - 'full' or 'limited' - IMPORTANT: When you authorize, you are given two access_tokens.  One has full Read/Write access, the other is has only Read access.  If you are passing AccessTokens through to the general public (e.g., A front-end app that shows Servant content to the general public and not only to the Servant account owner), use the 'limited' access_token.  It's more secure.
+    **token:** 'LKJFSF9809asfljasf'
+    Optional - String - Manually input an access token
+        **cache:** true,
+        Optional - Boolean - Auto-cache Servants and User data in the SDK when fetched.  Defaults to true.
+        **image_file_input_class:** 'image-input',
+        Optional - String - If you have file inputs to select images for uploading to create Image Archetypes, put in their class here, and files will be auto-uploaded afer being selected.
+        **image_dropzone_class:** 'image-dropzone',
+        Optional - String - Class of dropzone elements.  Drop listener will be added.
+        **image_preview_id:** 'image-upload-previews',
+        Optional - String - ID of image preview container to which img elements will be appended before upload and removed after upload.
+        **image_success_callback:** imageSuccessCallback,
+        Optional - Function - Image upload success callback,
+        **image_failed_callback:** imageFailedCallback,
+        Optional - Function - Image upload failed callback.
+        **image_progress_callback:** imageProgressCallback,
+        Optional - Function - Image progress callback.  Returns percentage, bytes loaded, bytes total as params.
 
-**Check Status:**
+**Servant.status**
 This returns "uninitialized", "no_token", "has_token"
     
     if (Servant.status === "has_token"){
@@ -72,6 +89,11 @@ Fetches the account user and their Servants which your application has permissio
     }, function(error) {
         console.log(error);
     });
+**Servant.servants, Servant.user**
+These variables are created whenever `.getUserAndServants()` is called.
+
+**Servant.setServant(servant)**
+This sets the servant whose data you'd like to work with.  You MUST set the Servant before you can work with Archetype records via the Servant API.  Pass in an entire Servant object that you get from `.getUserAndServants()`
 
 **Servant.instantiate(archetype, callback)**
 Creates a new instance of an Archetype.  Has a callback because it fetches the Archetype's Schema from the Servant API and caches it on first use. 
@@ -83,34 +105,36 @@ Creates a new instance of an Archetype.  Has a callback because it fetches the A
 **Servant.validate(archetype, instance, callback)**
 Validates an instance of an Archetype against the Archetype's rules (e.g. character limits, max items, etc.).  Fetches the Archetype's Schema from the Servant API and caches it on first use.  The instance will pass through without error if it is valid.
 
-    Servant.validate('product', newProduct, function(error, response) {
-        console.log(error, response)
+    Servant.validate('product', newProduct, function(product) {
+        console.log(product)
+    }, function(error){
+        console.log(error.errors);
     });
 
-**Servant.saveArchetype(servantID, archetype, instance, successCallback, errorCallback)**
-Creates or Updates an Archetype on a Servant.  If the instance has an "_id" property, this will attempt to update an existing record.  If the instance has no "_id" attribute, a record will be created.
+**Servant.saveArchetype(archetype, instance, successCallback, errorCallback)**
+Creates or Updates an Archetype on a Servant.  If the instance has an "_id" property, this will attempt to update an existing record.  If the instance has no "_id" attribute, a record will be created.  Make sure you set the servant before using this function via `.setServant(servant)`.
 
-    Servant.saveArchetype('7984h12498124h1', 'product', newProduct, function(response) {
+    Servant.saveArchetype('product', newProduct, function(response) {
         console.log(response);
     }, function(error) {
         console.log(error);
     });
 
-**Servant.showArchetype(servantID, archetype, archetypeID, successCallback, errorCallback)**
-Shows a record of an Archetype from Servant.
+**Servant.showArchetype(archetype, archetypeID, successCallback, errorCallback)**
+Shows a record of an Archetype from Servant.  Make sure you set the servant before using this function via `.setServant(servant)`.
 
-    Servant.showArchetype('7984h12498124h1', 'product', '8080h1419ua987124', function(response) {
+    Servant.showArchetype('product', '8080h1419ua987124', function(response) {
         console.log(response);
     }, function(error) {
         console.log(error);
     });
 
-**Servant.queryArchetypes(servantID, archetype, criteria, successCallback, errorCallback)**
-Queries records of an Archetype on a Servant.  This method can take most MongoDB queries.  Format query criteria like this:
+**Servant.queryArchetypes(archetype, criteria, successCallback, errorCallback)**
+Queries records of an Archetype on a Servant.  Make sure you set the servant before using this function via `.setServant(servant)`.  This method can take most MongoDB queries.  Format query criteria like this:
 
-    var criteria = { query: { price: 0 }, sort: {}, page: 0 };   
+    var criteria = { query: { price: 0 }, sort: {}, page: 1 };   
 
-    Servant.queryArchetypes('7984h12498124h1', 'product', criteria, function(response) {
+    Servant.queryArchetypes('product', criteria, function(response) {
         console.log(response);
     }, function(error) {
         console.log(error);
@@ -120,14 +144,17 @@ Not including query criteria will simply fetch the 10 most recent records of the
 
 Simply iterate the page integer to paginate through results.
 
-**Servant.deleteArchetype(servantID, archetype, archetypeID, successCallback, errorCallback)**
-Deletes a record of an Archetype from Servant.
+**Servant.deleteArchetype(archetype, archetypeID, successCallback, errorCallback)**
+Deletes a record of an Archetype from Servant.  Make sure you set the servant before using this function via `.setServant(servant)`.
 
-    Servant.deleteArchetype('7984h12498124h1', 'product', '8080h1419ua987124', function(response) {
+    Servant.deleteArchetype('product', '8080h1419ua987124', function(response) {
         console.log(response);
     }, function(error) {
         console.log(error);
     });
+
+**Creating Image Archetypes**
+Image Archetypes cannot be created like other Archetypes.  To create or update them, you must upload an image directly to Servant.  Then you will receive the created Image Archetype in the response.  The `.initialize()` method contains a ton of helpful options to handle uploading for you.  Make sure you set the servant before creating image archetypes via `.setServant(servant)`.
 
 
 
