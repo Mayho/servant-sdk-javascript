@@ -4,6 +4,8 @@
 
 For even more Documentation, check out  [Servant – Developers](https://developers.servant.co).   The Documentation there goes over installing and using the SDK, plus how to use it to build Client-Side Servant Applications.
 
+**[There is a video that shows how to build front-end applications with this SDK here](http://youtu.be/BZeM7CC_w1E)**
+
 ## Features ##
 
  - **Instantiation:**  Create instances of Archetype Objects already filled with all properties available
