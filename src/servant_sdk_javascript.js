@@ -733,7 +733,7 @@
      *
      */
     Servant._saveImageArchetype = function(files) {
-        console.log(files)
+        // console.log(files)
         var self = this;
         // Check if Servant is set
         if (!self.servant) return console.error('Servant SDK Error – You have to set Servant.servant before you can upload images.  Use Servant.setServant(servant).');
@@ -741,22 +741,18 @@
         if (window.FormData === undefined) return console.error('Servant SDK Error – This browser does not support the File API and cannot use this method to upload images');
 
         // Upload Image Function
-        function imageUpload(previews, image_element, image_file, callback) {
+        function imageUpload(image_file, queue_count, callback) {
 
             // Check Type
             if (['image/jpeg', 'image/jpg', 'image/png', 'image/gif'].indexOf(image_file.type) < 0) {
-                // Remove Preview
-                if (self._image_preview_id) document.getElementById(self._image_preview_id).removeChild(image_element);
-                return callback({
+                return callback(queue_count, {
                     code: 'FileFormatNotAllowed',
                     message: 'Image file type must be a JPEG, PNG or GIF'
                 }, null);
             }
             // Check File Size
             if (image_file.size > 8000000) {
-                // Remove Preview
-                if (self._image_preview_id) document.getElementById(self._image_preview_id).removeChild(image_element);
-                return callback({
+                return callback(queue_count, {
                     code: 'FileSizeError',
                     message: 'Image file size must be less than 8 megabytes'
                 }, null);
@@ -770,21 +766,17 @@
             };
 
             xhr.onload = function() {
-                // Remove Preview
-                if (self._image_preview_id) document.getElementById(self._image_preview_id).removeChild(image_element);
                 // Queue Callback
                 if (xhr.status == 200) {
-                    return callback(null, JSON.parse(xhr.responseText));
+                    return callback(queue_count, null, JSON.parse(xhr.responseText));
                 } else {
-                    return callback(JSON.parse(xhr.responseText), null);
+                    return callback(queue_count, JSON.parse(xhr.responseText), null);
                 }
             };
 
             xhr.onerror = function() {
-                // Remove Preview
-                if (self._image_preview_id) document.getElementById(self._image_preview_id).removeChild(image_element);
                 // Queue Callback
-                return callback(JSON.parse(xhr.responseText, null));
+                return callback(queue_count, JSON.parse(xhr.responseText, null));
             };
 
             xhr.open("POST", self._path + '/data/servants/' + self.servant._id + '/archetypes/image?access_token=' + self._token, true);
@@ -809,22 +801,35 @@
                 })(img);
                 reader.readAsDataURL(files[i]);
             }
-        }
-
-        // Upload All Images
-        if (this._image_preview_id) {
             var previews = true;
-            var images = document.querySelectorAll(".image-archetype-preview");
+
+            // Collect Each Image Preview in an array, to remove after upload
+            var image_elements = document.querySelectorAll(".image-archetype-preview");
         } else {
             var previews = false;
-            var images = files;
         }
 
-        var image_counter = 0;
+        var images = files;
+        var queue_count = 0;
 
         function imageQueue() {
             // Check if finished
-            if (image_counter >= images.length) {
+            if (queue_count < images.length) {
+                // Upload
+                new imageUpload(images[queue_count], queue_count, function(queue, error, response) {
+                    // Remove Preview
+                    if (previews) document.getElementById(self._image_preview_id).removeChild(image_elements[queue]);
+                    // Callback
+                    if (error) self._image_failed_callback(error);
+                    self._image_success_callback(response);
+                    // Run Again?
+                    if (queue_count < images.length + 1) {
+                        imageQueue();
+                    }
+                });
+                // Increment Counter
+                queue_count = queue_count + 1;
+            } else {
                 // Clear File Inputs
                 var file_inputs = document.querySelectorAll('.' + self._image_file_input_class);
                 for (i = 0; i < file_inputs.length; i++) {
@@ -838,24 +843,11 @@
                         self._saveImageArchetype(this.files);
                     }, false);
                 }
-            } else {
-                // Upload
-                new imageUpload(previews, images[image_counter], images[image_counter].file, function(error, response) {
-                    // Callback
-                    if (error) self._image_failed_callback(error);
-                    self._image_success_callback(response);
-                    // Run Again?
-                    if (image_counter < images.length + 1) {
-                        imageQueue();
-                    }
-                });
-                // Increment Counter
-                image_counter = image_counter + 1;
             }
         }
 
         // Start ImageQueue
-        imageQueue()
+        imageQueue();
 
     };
 
