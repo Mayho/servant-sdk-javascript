@@ -657,7 +657,7 @@
     /**
      * Public Method – Validate An Archetype Instance
      */
-    Servant.validate = function(archetype, instance, callback) {
+    Servant.validate = function(archetype, instance, success, failed) {
 
         // Prepare Archetype
         if (typeof archetype !== 'string') {
@@ -677,7 +677,7 @@
         // Check Instance
         if (!instance || this._utilities.whatIs(instance) !== 'object') {
             errors.schema = 'You did not submit a valid object to validate';
-            return callback(errors, null);
+            return failed(errors);
         }
 
         // Check Required Fields, if they exist
@@ -714,13 +714,13 @@
             }
         }
 
-        // Callback Errors
-        if (Object.keys(errors).length) return callback({
+        // Callback Failed
+        if (Object.keys(errors).length) return failed({
             error: "ValidationFailed",
             errors: errors
-        }, null);
-        // Callback Valid
-        return callback(null, instance);
+        });
+        // Callback Success
+        return success(instance);
 
     }; // Servant.validate
 

@@ -83,7 +83,7 @@ describe("Test Servant Javascript SDK --- ", function() {
 
     });
 
-/**
+    /**
      * Get Servant
      */
 
@@ -161,7 +161,9 @@ describe("Test Servant Javascript SDK --- ", function() {
             // Enum
             testData.product.condition = 'so damn chill';
             // Validate
-            Servant.validate('product', testData.product, function(error, product) {
+            Servant.validate('product', testData.product, function(product) {
+
+            }, function(error) {
                 testData.error = error;
                 done();
             });
@@ -185,10 +187,11 @@ describe("Test Servant Javascript SDK --- ", function() {
                 product.name = 'Product 1';
                 product.price = 9999;
                 product.seller = 'The Store';
-                Servant.validate('product', product, function(error, product) {
+                Servant.validate('product', product, function(product) {
                     expect(product).toBeDefined();
-                    expect(error).toEqual(null);
                     console.log('Validate Successfully', product);
+                }, function(error) {
+
                 });
             });
         });
