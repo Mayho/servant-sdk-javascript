@@ -35,7 +35,7 @@ describe("Test Servant Javascript SDK --- ", function() {
                 application_client_id: 'O4x9SPs5bcp6h3pO',
                 image_file_input_class: 'image-input',
                 image_dropzone_class: 'image-dropzone',
-                // image_preview_id: 'image-preview-container',
+                image_preview_id: 'image-preview-container',
                 image_success_callback: imageSuccessCallback,
                 image_failed_callback: imageFailedCallback,
                 image_progress_callback: imageProgressCallback,
