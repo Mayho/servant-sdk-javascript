@@ -95,7 +95,7 @@ Fetches the account user and their Servants which your application has permissio
 These variables are created whenever `.getUserAndServants()` is called.
 
 **Servant.setServant(servant)**
-This sets the servant whose data you'd like to work with.  You MUST set the Servant before you can work with Archetype records via the Servant API.  Pass in an entire Servant object that you get from `.getUserAndServants()`
+This sets the servant whose data you'd like to work with.  You MUST set the Servant before you can work with Archetype records via the Servant API.  Pass in an entire Servant object that you get from `.getUserAndServants()`.  This will also set the following variable: `Servant.servant`.
 
 **Servant.instantiate(archetype, callback)**
 Creates a new instance of an Archetype.  Has a callback because it fetches the Archetype's Schema from the Servant API and caches it on first use. 
