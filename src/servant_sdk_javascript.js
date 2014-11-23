@@ -1,7 +1,7 @@
 /**
  *
  * Servant SDK Javascript for Client-Side Applications and Regular Web Pages
- * Version: v1.0.4
+ * Version: v1.0.5
  * By Servant – https://www.servant.co
  * Copyright 2014 Servant
  * Authors: Austen Collins
@@ -762,7 +762,7 @@
             var formData = new FormData();
 
             xhr.upload.onprogress = function(e) {
-                self._image_progress_callback(((e.loaded / e.total) * 100), e.loaded, e.total);
+                if (self._image_progress_callback) self._image_progress_callback(((e.loaded / e.total) * 100), e.loaded, e.total);
             };
 
             xhr.onload = function() {
