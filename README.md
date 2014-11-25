@@ -46,16 +46,13 @@ Put this at the beginning of your application, before any other javascript logic
 
 Options:
 
-**application_client_id:** 'jasf98asfasf8a568asf',
+* **application_client_id:** 'jasf98asfasf8a568asf',
 Required - String - CLIENT_ID from app registered on Servant
-
-**version:** 0,
+* **version:** 0,
 Optional - Integer - Must be set to 0
-
-**protocol:** 'https',
+* **protocol:** 'https',
 Optional - String - 'http' or 'https'
-
-**scope:** 'full',
+* **scope:** 'full',
 Optional - String - 'full' or 'limited' - IMPORTANT: When you authorize, you are given two access_tokens.  One has full Read/Write access, the other is has only Read access.  If you are passing AccessTokens through to the general public (e.g., A front-end app that shows Servant content to the general public and not only to the Servant account owner), use the 'limited' access_token.  It's more secure.
 
 **token:** 'LKJFSF9809asfljasf'
