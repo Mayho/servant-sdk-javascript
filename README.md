@@ -46,30 +46,30 @@ Put this at the beginning of your application, before any other javascript logic
 
 Options:
 
-   **application_client_id:** 'jasf98asfasf8a568asf',
-    Required - String - CLIENT_ID from app registered on Servant
-    **version:** 0,
-    Optional - Integer - Must be set to 0
-    **protocol:** 'https',
-    Optional - String - 'http' or 'https'
-    **scope:** 'full',
-    Optional - String - 'full' or 'limited' - IMPORTANT: When you authorize, you are given two access_tokens.  One has full Read/Write access, the other is has only Read access.  If you are passing AccessTokens through to the general public (e.g., A front-end app that shows Servant content to the general public and not only to the Servant account owner), use the 'limited' access_token.  It's more secure.
-    **token:** 'LKJFSF9809asfljasf'
-    Optional - String - Manually input an access token
-        **cache:** true,
-        Optional - Boolean - Auto-cache Servants and User data in the SDK when fetched.  Defaults to true.
-        **image_file_input_class:** 'image-input',
-        Optional - String - If you have file inputs to select images for uploading to create Image Archetypes, put in their class here, and files will be auto-uploaded afer being selected.
-        **image_dropzone_class:** 'image-dropzone',
-        Optional - String - Class of dropzone elements.  Drop listener will be added.
-        **image_preview_id:** 'image-upload-previews',
-        Optional - String - ID of image preview container to which img elements will be appended before upload and removed after upload.
-        **image_success_callback:** imageSuccessCallback,
-        Optional - Function - Image upload success callback,
-        **image_failed_callback:** imageFailedCallback,
-        Optional - Function - Image upload failed callback.
-        **image_progress_callback:** imageProgressCallback,
-        Optional - Function - Image progress callback.  Returns percentage, bytes loaded, bytes total as params.
+**application_client_id:** 'jasf98asfasf8a568asf',
+Required - String - CLIENT_ID from app registered on Servant
+**version:** 0,
+Optional - Integer - Must be set to 0
+**protocol:** 'https',
+Optional - String - 'http' or 'https'
+**scope:** 'full',
+Optional - String - 'full' or 'limited' - IMPORTANT: When you authorize, you are given two access_tokens.  One has full Read/Write access, the other is has only Read access.  If you are passing AccessTokens through to the general public (e.g., A front-end app that shows Servant content to the general public and not only to the Servant account owner), use the 'limited' access_token.  It's more secure.
+**token:** 'LKJFSF9809asfljasf'
+Optional - String - Manually input an access token
+**cache:** true,
+Optional - Boolean - Auto-cache Servants and User data in the SDK when fetched.  Defaults to true.
+**image_file_input_class:** 'image-input',
+Optional - String - If you have file inputs to select images for uploading to create Image Archetypes, put in their class here, and files will be auto-uploaded afer being selected.
+**image_dropzone_class:** 'image-dropzone',
+Optional - String - Class of dropzone elements.  Drop listener will be added.
+**image_preview_id:** 'image-upload-previews',
+Optional - String - ID of image preview container to which img elements will be appended before upload and removed after upload.
+**image_success_callback:** imageSuccessCallback,
+Optional - Function - Image upload success callback,
+**image_failed_callback:** imageFailedCallback,
+Optional - Function - Image upload failed callback.
+**image_progress_callback:** imageProgressCallback,
+Optional - Function - Image progress callback.  Returns percentage, bytes loaded, bytes total as params.
 
 **Servant.status**
 This returns "uninitialized", "no_token", "has_token"
