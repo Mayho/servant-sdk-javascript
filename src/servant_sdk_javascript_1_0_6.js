@@ -73,6 +73,7 @@
         this._protocol = typeof options !== 'undefined' && typeof options.protocol !== 'undefined' ? options.protocol : 'http'; // HTTP Protocol
         this._scope = typeof options !== 'undefined' && typeof options.scope !== 'undefined' ? options.scope : 'full'; // AccessToken Scope:  Is it a FULL or LIMITED token?
         this._cache = typeof options !== 'undefined' && typeof options.cache !== 'undefined' ? options.cache : true;
+        this._path = this._protocol + '://api' + this._version + '.servant.co'; // API Path
         this._connectURL = 'https://www.servant.co/connect/oauth2/authorize?response_type=token&client_id=' + this._application_client_id;
         this._image_file_input_class = options.image_file_input_class || null;
         this._image_dropzone_class = options.image_dropzone_class || null;
@@ -80,13 +81,7 @@
         this._image_success_callback = options.image_success_callback || null;
         this._image_failed_callback = options.image_failed_callback || null;
         this._image_progress_callback = options.image_progress_callback || null;
-        // Dev Options
         this._dashboard = options.dashboard || null;
-        if (options.development) {
-            this._path = this._protocol + '://api' + this._version + '.localhost:4000'; // API Path
-        } else {    
-            this._path = this._protocol + '://api' + this._version + '.servant.co'; // API Path
-        }
 
         /**
          * Set Token or Check For It In Window Location
