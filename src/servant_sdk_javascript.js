@@ -81,6 +81,7 @@
         this._image_success_callback = options.image_success_callback || null;
         this._image_failed_callback = options.image_failed_callback || null;
         this._image_progress_callback = options.image_progress_callback || null;
+        this._dashboard = options.dashboard || null;
 
         /**
          * Set Token or Check For It In Window Location
@@ -174,6 +175,7 @@
         if (this.status !== "has_token") return console.error('Servant SDK Error – The SDK has no Access Token');
 
         var url = this._path + path;
+        if (this._dashboard) url = url + '&dashboard=true';
 
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function() {
@@ -732,7 +734,6 @@
      *
      */
     Servant._saveImageArchetype = function(files) {
-        // console.log(files)
         var self = this;
         // Check if Servant is set
         if (!self.servant) return console.error('Servant SDK Error – You have to set Servant.servant before you can upload images.  Use Servant.setServant(servant).');
@@ -778,7 +779,10 @@
                 return callback(queue_count, JSON.parse(xhr.responseText, null));
             };
 
-            xhr.open("POST", self._path + '/data/servants/' + self.servant._id + '/archetypes/image?access_token=' + self._token, true);
+            var url = self._path + '/data/servants/' + self.servant._id + '/archetypes/image?access_token=' + self._token;
+            if (self._dashboard) url = url + '&dashboard=true';
+
+            xhr.open("POST", url, true);
             formData.append("uploads", image_file);
             xhr.send(formData);
         };
@@ -817,7 +821,7 @@
                 // Upload
                 new imageUpload(images[queue_count], queue_count, function(queue, error, response) {
                     // Remove Preview
-                    if (previews) document.getElementById(self._image_preview_id).removeChild(image_elements[queue]);
+                    if (previews) document.getElementById(self._image_preview_id).children[0].remove();
                     // Callback
                     if (error) self._image_failed_callback(error);
                     self._image_success_callback(response);
@@ -829,6 +833,9 @@
                 // Increment Counter
                 queue_count = queue_count + 1;
             } else {
+                // Finished Uploading Queue, Clean Up Everything
+                // Ensure Previews Are Removed
+                if (previews) document.getElementById(self._image_preview_id).innerHTML = '';
                 // Clear File Inputs
                 var file_inputs = document.querySelectorAll('.' + self._image_file_input_class);
                 for (i = 0; i < file_inputs.length; i++) {
