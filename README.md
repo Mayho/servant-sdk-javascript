@@ -12,7 +12,7 @@ For even more Documentation, check out  [Servant – Developers](https://develop
  - **Validation:**  Validate Archetype Objects locally, without having to send them up to Servant.
  - **Save/Update Archetype Records:** Save and Update Archetype Records easily
  - **Show/Query Archetype Records:** Show and Query Archetype Records kept on Servants
- - **Connect Method:**  Add the Connect Method to any element (i.e., a button) to make them Servant Connect buttons. 
+ - **Connect Method:**  Add the connect() Method to any element (i.e., buttons) to make them Servant Connect buttons. 
  - **Image Archetypes** Multiple Image Uploading via Dropzones and File Inputs, with Previews, Progress, and more:**  The initialize method features tons of parameters allowing you to create Image Archetype upload dropzones, file inputs, image upload previews and progress percentages.
 
 
