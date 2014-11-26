@@ -13,7 +13,7 @@ For even more Documentation, check out  [Servant – Developers](https://develop
  - **Save/Update Archetype Records:** Save and Update Archetype Records easily
  - **Show/Query Archetype Records:** Show and Query Archetype Records kept on Servants
  - **Connect Method:**  Add the Connect Method to any element (i.e., a button) to make them Servant Connect buttons. 
- - **Image Archetype Upload Dropzones, Previews, Progress, and more:**  The initialize method features tons of parameters allowing you to create Image Archetype upload dropzones, file inputs, image upload previews and progress percentages.
+ - **Image Archetypes** Multiple Image Uploading via Dropzones and File Inputs, with Previews, Progress, and more:**  The initialize method features tons of parameters allowing you to create Image Archetype upload dropzones, file inputs, image upload previews and progress percentages.
 
 
 ## Testing ##
