@@ -2,9 +2,21 @@
 
 **Rapidly build web pages and client-side applications that connect with Servants using this SDK**
 
-For even more Documentation, check out  [Servant – Developers](https://developers.servant.co).   The Documentation there goes over installing and using the SDK, plus how to use it to build Client-Side Servant Applications.
-
 **[There is a video that shows how to build front-end applications with this SDK here](http://youtu.be/BZeM7CC_w1E)**
+
+Import the latest copy of v1 into your website with one line of code:
+
+**For websites using http:**
+
+    <!-- Servant SDK -->
+    <script type="text/javascript" src="http://cdn.servant.co/sdk/1/servant.js"></script>
+
+**For websites using https:**
+
+    <!-- Servant SDK -->
+    <script type="text/javascript" src="https://d2d0226i04jal.cloudfront.net/sdk/1/servant.js"></script>
+
+For even more Documentation, check out  [Servant – Developers](https://developers.servant.co).   The Documentation there goes over installing and using the SDK, plus how to use it to build Client-Side Servant Applications.
 
 ## Features ##
 
@@ -130,6 +142,16 @@ Shows a record of an Archetype from Servant.  Make sure you set the servant befo
     }, function(error) {
         console.log(error);
     });
+    
+**Servant.deleteArchetype(archetype, archetypeID, successCallback, errorCallback)**
+Deletes a record of an Archetype from Servant.  Make sure you set the servant before using this function via `.setServant(servant)`.
+
+    Servant.deleteArchetype('product', '8080h1419ua987124', function(response) {
+        console.log(response);
+    }, function(error) {
+        console.log(error);
+    });
+
 
 **Servant.queryArchetypes(archetype, criteria, successCallback, errorCallback)**
 Queries records of an Archetype on a Servant.  Make sure you set the servant before using this function via `.setServant(servant)`.  This method can take most MongoDB queries.  Format query criteria like this:
@@ -146,14 +168,29 @@ Not including query criteria will simply fetch the 10 most recent records of the
 
 Simply iterate the page integer to paginate through results.
 
-**Servant.deleteArchetype(archetype, archetypeID, successCallback, errorCallback)**
-Deletes a record of an Archetype from Servant.  Make sure you set the servant before using this function via `.setServant(servant)`.
+**Servant.archetypesRecent(archetype, successCallback, errorCallback)**
+A convenience method to fetch records of an Archetype sorted by newest to oldest. Make sure you set the servant before using this function via `.setServant(servant)`. 
 
-    Servant.deleteArchetype('product', '8080h1419ua987124', function(response) {
+    Servant.archetypesRecent('product',
+    function(response) {
         console.log(response);
     }, function(error) {
         console.log(error);
     });
+
+**Servant.archetypesOldest(archetype, successCallback, errorCallback)**
+A convenience method to fetch records of an Archetype sorted by oldest to newest. Make sure you set the servant before using this function via `.setServant(servant)`. 
+
+    Servant.archetypesOldest('product',
+    function(response) {
+        console.log(response);
+    }, function(error) {
+        console.log(error);
+    });
+
+
+
+
 
 **Creating Image Archetypes**
 Image Archetypes cannot be created like other Archetypes.  To create or update them, you must upload an image directly to Servant.  Then you will receive the created Image Archetype in the response.  The `.initialize()` method contains a ton of helpful options to handle uploading for you.  Make sure you set the servant before creating image archetypes via `.setServant(servant)`.
