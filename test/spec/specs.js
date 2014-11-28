@@ -319,6 +319,54 @@ describe("Test Servant Javascript SDK --- ", function() {
 
     });
 
+    /**
+     * Querying Convenience Methods
+     */
+    
+    describe("Convenience – Show Recent", function() {
+
+        beforeEach(function(done) {
+
+            Servant.archetypesRecent('product', function(products) {
+                testData.products = products;
+                done();
+            }, function(error) {
+                testData.error = error;
+                done();
+            });
+        });
+
+        it("Convenience – Show Recent", function() {
+            expect(testData.products).toBeDefined();
+            expect(testData.products.records[0].name).toEqual('Test Product Has Been Updated');
+            expect(testData.error).toEqual(null);
+            console.log('Convenience – Show Recent', testData.error, testData.products);
+        });
+
+    });
+
+
+    describe("Convenience – Show Oldest", function() {
+
+        beforeEach(function(done) {
+
+            Servant.archetypesOldest('product', function(products) {
+                testData.products = products;
+                done();
+            }, function(error) {
+                testData.error = error;
+                done();
+            });
+        });
+
+        it("Convenience – Show Oldest", function() {
+            expect(testData.products).toBeDefined();
+            expect(testData.error).toEqual(null);
+            console.log('Convenience – Show Oldest', testData.error, testData.products);
+        });
+
+    });
+
 
     /**
      * Showing

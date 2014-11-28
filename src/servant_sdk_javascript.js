@@ -84,7 +84,7 @@
         this._dashboard = options.dashboard || null;
         if (options.development) {
             this._path = this._protocol + '://api' + this._version + '.localhost:4000'; // API Path
-        } else {    
+        } else {
             this._path = this._protocol + '://api' + this._version + '.servant.co'; // API Path
         }
 
@@ -912,32 +912,6 @@
     };
 
     /**
-     * Query Archetype Records On Servant
-     */
-    Servant.queryArchetypes = function(archetype, criteria, success, failed) {
-        // Check Params
-        if (!this.servant) return console.error('Servant SDK Error – You have not set a servant to use.  Set the Servant.servant variable to the servant you would like to use');
-        // Fix variable assignment
-        if (typeof criteria === 'function' && !failed) {
-            failed = success;
-            success = criteria;
-            criteria = false;
-        }
-        if (!archetype) return console.error('Servant SDK Error – The queryArchetypes() method requires an archetype parameter');
-        if (!success) return console.error('Servant SDK Error – The queryArchetypes() method requires a success callback');
-        if (!failed) return console.error('Servant SDK Error – The queryArchetypes() method requires a failed callback');
-        // Build URL
-        var url = '/data/servants/' + this.servant._id + '/archetypes/' + archetype + '?access_token=' + this._token;
-        if (criteria) url = url + '&criteria=' + JSON.stringify(criteria);
-        // Call API
-        this._callAPI('GET', url, null, function(response) {
-            success(response);
-        }, function(error) {
-            failed(error);
-        });
-    };
-
-    /**
      * Delete an Archetype Record on Servant
      */
     Servant.deleteArchetype = function(archetype, archetypeID, success, failed) {
@@ -988,6 +962,64 @@
             return failed(error);
         });
     };
+
+    /**
+     * Query Archetype Records On Servant
+     */
+    Servant.queryArchetypes = function(archetype, criteria, success, failed) {
+        // Check Params
+        if (!this.servant) return console.error('Servant SDK Error – You have not set a servant to use.  Set the Servant.servant variable to the servant you would like to use');
+        // Fix variable assignment
+        if (typeof criteria === 'function' && !failed) {
+            failed = success;
+            success = criteria;
+            criteria = false;
+        }
+        if (!archetype) return console.error('Servant SDK Error – The queryArchetypes() method requires an archetype parameter');
+        if (!success) return console.error('Servant SDK Error – The queryArchetypes() method requires a success callback');
+        if (!failed) return console.error('Servant SDK Error – The queryArchetypes() method requires a failed callback');
+        // Build URL
+        var url = '/data/servants/' + this.servant._id + '/archetypes/' + archetype + '?access_token=' + this._token;
+        if (criteria) url = url + '&criteria=' + JSON.stringify(criteria);
+        // Call API
+        this._callAPI('GET', url, null, function(response) {
+            success(response);
+        }, function(error) {
+            failed(error);
+        });
+    };
+
+    /**
+     * Query Archetypes Convenience Method – Show Recent
+     */
+    Servant.archetypesRecent = function(archetype, success, failed) {
+        Servant.queryArchetypes(archetype, null, function(response) {
+            return success(response);
+        }, function(error) {
+            return failed(error);
+        });
+    };
+
+    /**
+     * Query Archetypes Convenience Method – Show Oldest
+     */
+    Servant.archetypesOldest = function(archetype, success, failed) {
+        // Criteria
+        var criteria = {
+            query: {},
+            sort: {
+                created: 1
+            },
+            page: 0
+        };
+        // Perform API Call
+        Servant.queryArchetypes(archetype, criteria, function(response) {
+            return success(response);
+        }, function(error) {
+            return failed(error);
+        });
+    };
+
 
 }(this));
 
