@@ -1,7 +1,7 @@
 /**
  *
  * Servant SDK Javascript for Client-Side Applications and Regular Web Pages
- * Version: v1.0.9
+ * Version: v1.0.10
  * By Servant – https://www.servant.co
  * Copyright 2014 Servant
  * Authors: Austen Collins
@@ -992,7 +992,24 @@
     /**
      * Query Archetypes Convenience Method – Show Recent
      */
-    Servant.archetypesRecent = function(archetype, success, failed) {
+    Servant.archetypesRecent = function(archetype, page, success, failed) {
+        // Check Page parameter
+        if (typeof page === 'function' && !failed) {
+            failed = success;
+            success = page;
+            page = 1;
+        }
+        if (page) page = parseInt(page);
+
+        // Set criteria
+        var criteria = {
+            query: {},
+            sort: {
+                created: -1
+            },
+            page: page
+        };
+
         Servant.queryArchetypes(archetype, null, function(response) {
             return success(response);
         }, function(error) {
@@ -1003,14 +1020,21 @@
     /**
      * Query Archetypes Convenience Method – Show Oldest
      */
-    Servant.archetypesOldest = function(archetype, success, failed) {
+    Servant.archetypesOldest = function(archetype, page, success, failed) {
+        // Check Page parameter
+        if (typeof page === 'function' && !failed) {
+            failed = success;
+            success = page;
+            page = 1;
+        }
+        if (page) page = parseInt(page);
         // Criteria
         var criteria = {
             query: {},
             sort: {
                 created: 1
             },
-            page: 0
+            page: page
         };
         // Perform API Call
         Servant.queryArchetypes(archetype, criteria, function(response) {

@@ -327,7 +327,7 @@ describe("Test Servant Javascript SDK --- ", function() {
 
         beforeEach(function(done) {
 
-            Servant.archetypesRecent('product', function(products) {
+            Servant.archetypesRecent('product', 1, function(products) {
                 testData.products = products;
                 done();
             }, function(error) {

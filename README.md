@@ -168,20 +168,20 @@ Not including query criteria will simply fetch the 10 most recent records of the
 
 Simply iterate the page integer to paginate through results.
 
-**Servant.archetypesRecent(archetype, successCallback, errorCallback)**
-A convenience method to fetch records of an Archetype sorted by newest to oldest. Make sure you set the servant before using this function via `.setServant(servant)`. 
+**Servant.archetypesRecent(archetype, page, successCallback, errorCallback)**
+A convenience method to fetch records of an Archetype sorted by newest to oldest.  The `page` param is an integer you can use to easily iterate through pages of results.  Make sure you set the servant before using this function via `.setServant(servant)`. 
 
-    Servant.archetypesRecent('product',
+    Servant.archetypesRecent('product', 1,
     function(response) {
         console.log(response);
     }, function(error) {
         console.log(error);
     });
 
-**Servant.archetypesOldest(archetype, successCallback, errorCallback)**
-A convenience method to fetch records of an Archetype sorted by oldest to newest. Make sure you set the servant before using this function via `.setServant(servant)`. 
+**Servant.archetypesOldest(archetype, page, successCallback, errorCallback)**
+A convenience method to fetch records of an Archetype sorted by oldest to newest.  The `page` param is an integer you can use to easily iterate through pages of results.  Make sure you set the servant before using this function via `.setServant(servant)`. 
 
-    Servant.archetypesOldest('product',
+    Servant.archetypesOldest('product', 1,
     function(response) {
         console.log(response);
     }, function(error) {
