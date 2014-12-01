@@ -1045,6 +1045,67 @@
     };
 
 
+    /**
+     * Servant-UI – Auto Archetype Form
+     */
+    // Servant.createForm = function(archetype, formContainerId, instance, success, failed) {
+    //     // Check if Archetype has been registered. If not, fetch it from Servant's API then call this function again
+    //     if (!this._archetypes[archetype]) {
+    //         var self = this;
+    //         return this._addArchetypeSchema(archetype, function() {
+    //             return self.createForm(archetype, formContainerId, instance, success, failed);
+    //         });
+    //     }
+    //     // Defaults
+    //     var self = this;
+    //     var skipped_properties = ['_id', 'draft', 'created', 'updated'];
+
+    //     /**
+    //      * Construct Form
+    //      */
+
+    //     // Get Form Container
+    //     var form = document.getElementById(formContainerId);
+    //     // Create HTML + Essential Styles
+    //     var html = '<style> .s-clearfix:before, .s-clearfix:after {content: " "; display: table; } .s-clearfix:after {clear: both; } .s-clearfix {*zoom: 1; } .s-label {display: inline-block; max-width: 100%; text-transform: capitalize; } .s-input {display: block; width: 100%; } </style>';
+    //     html = html + '<form id="s-' + archetype + '-form" class="s-archetype-form" role="form">';
+    //     var properties = Object.keys(this._archetypes[archetype].properties);
+    //     // Loop Fields & Create Inputs
+    //     for (i = 0; i < properties.length; i++) {
+    //         // Skip Properties
+    //         if (skipped_properties.indexOf(properties[i]) > -1) continue;
+    //         // Save Re-Useable Variables
+    //         var property = self._archetypes[archetype].properties[properties[i]];
+    //         var property_key = properties[i];
+    //         // Open Form Group Container
+    //         html = html + '<div class="s-form-group s-clearfix s-form-group-' + property_key + '">';
+    //         // ----- Insert TEXT Input
+    //         if (property.type === 'string' && property.maxLength < 140) {
+    //             html = html + '<label for="s-input-' + property_key + '" class="s-label">' + property_key + '</label>';
+    //             html = html + '<input type="text" id="s-input-' + property_key + '" class="s-input s-text-input" placeholder="Enter ' + property_key + '" maxlength=' + property.maxLength + '>';
+    //         }
+    //         // ----- Insert TEXTAREA Input
+    //         if (property.type === 'string' && property.maxLength > 139) {
+    //             html = html + '<label for="s-input-' + property_key + '" class="s-label">' + property_key + '</label>';
+    //             html = html + '<textarea rows="3" id="s-input-' + property_key + '" class="s-input s-text-input" placeholder="' + property.description + '" maxlength=' + property.maxLength + '></textarea>';
+    //         }
+    //         // ----- Insert IMAGE DROPZONE + FILE SELECT
+    //         if (property['$ref'] && property['$ref'] === 'image_archetype_schema.json') {
+    //             html = html + '<label for="s-input-' + property_key + '" class="s-label">' + property_key + '</label>';
+    //             html = html + '<div class="s-input s-image-input">';
+    //             html = html + '<button class="s-btn s-file-btn s-btn-' + property_key + '">Add ' + property_key + '</button>';
+    //             html = html + '</div><input type="file" id="s-input-' + property_key + '" class="s-file-input" multiple style="display:none">';
+    //         }
+    //         // Add Error Element
+    //         html = html + '<p class="s-error s-error-' + property_key + '" style="display:none;"></p>';
+    //         // Close Form Group Container
+    //         html = html + '</div>';
+    //     }
+    //     // Add To HTML
+    //     form.innerHTML = html + '</form>';
+    // }; // Servant.createForm
+
+
 }(this));
 
 
