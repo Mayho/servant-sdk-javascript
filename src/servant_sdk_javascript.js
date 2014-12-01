@@ -209,7 +209,7 @@
     Servant._addArchetypeSchema = function(archetype, callback) {
         var self = this;
 
-        this._callAPI('GET', '/data/archetypes/' + archetype, null, function(response) {
+        this._callAPI('GET', '/data/archetypes/' + archetype + '?', null, function(response) {
             self._archetypes[archetype] = response;
             callback(response);
         }, function(error) {
