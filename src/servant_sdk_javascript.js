@@ -1,7 +1,7 @@
 /**
  *
  * Servant SDK Javascript for Client-Side Applications and Regular Web Pages
- * Version: v1.0.12
+ * Version: v1.0.13
  * By Servant – https://www.servant.co
  * Copyright 2014 Servant
  * Authors: Austen Collins
@@ -700,7 +700,9 @@
         var keys1 = Object.keys(instance);
         var idx1 = keys1.length;
         while (idx1--) {
-            if (!archetype.properties[keys1[idx1]]) {
+            if (keys1[idx1] === 'servant') {
+                continue;
+            } else if (!archetype.properties[keys1[idx1]]) {
                 // Check If Allowed Property
                 errors[keys1[idx1]] = keys1[idx1] + ' is not allowed';
             } else if (archetype.properties[keys1[idx1]] && archetype.properties[keys1[idx1]].type && this._utilities.whatIs.call(this, instance[keys1[idx1]]) !== archetype.properties[keys1[idx1]].type) {
