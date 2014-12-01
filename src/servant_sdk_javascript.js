@@ -1,7 +1,7 @@
 /**
  *
  * Servant SDK Javascript for Client-Side Applications and Regular Web Pages
- * Version: v1.0.13
+ * Version: v1.0.14
  * By Servant – https://www.servant.co
  * Copyright 2014 Servant
  * Authors: Austen Collins
@@ -672,7 +672,7 @@
             // If Archetype has not been registered, fetch it from Servant's API then call this function again
             var self = this;
             return this._addArchetypeSchema(archetype, function() {
-                return self.validate(archetype, callback);
+                return self.validate(archetype, instance, success, failed);
             });
         } else {
             archetype = this._archetypes[archetype];
