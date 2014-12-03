@@ -4,19 +4,27 @@
 
 
 function imageSuccessCallback(response) {
-    console.log(response);
+    console.log("Image Success Callback Fired: ", response);
 };
 
 function imageFailedCallback(error) {
-    console.log(error);
+    console.log("Image Failed Callback Fired: ", error);
+};
+
+function imageStartedCallback() {
+    console.log("Image Uploads Started Callback Fired!");
+};
+
+function imageFinishedCallback() {
+    console.log("Image Uploads Finished Callback Fired!");
 };
 
 function imageProgressCallback(progress, loaded, total) {
-    console.log("Image Upload Progress: ", progress, loaded, total);
+    console.log("Image Upload Progress Callback Fired: ", progress, loaded, total);
 };
 
-function imageQueueCallback(queue_number) {
-    console.log("Image Queue: ", queue_number);
+function imageQueueCallback(queue_number, total) {
+    console.log("Image Queue: ", queue_number, total);
 };
 
 /**
@@ -33,13 +41,15 @@ describe("Test Servant Javascript SDK --- ", function() {
         beforeEach(function(done) {
             Servant.initialize({
                 application_client_id: 'O4x9SPs5bcp6h3pO',
-                image_file_input_class: 'image-input',
-                image_dropzone_class: 'image-dropzone',
-                image_preview_id: 'image-preview-container',
-                image_success_callback: imageSuccessCallback,
-                image_failed_callback: imageFailedCallback,
-                image_progress_callback: imageProgressCallback,
-                image_queue_callback: imageQueueCallback
+                upload_file_input_class: 'image-input',
+                upload_dropzone_class: 'image-dropzone',
+                upload_image_preview_id: 'image-preview-container',
+                upload_success_callback: imageSuccessCallback,
+                upload_failed_callback: imageFailedCallback,
+                upload_started_callback: imageStartedCallback,
+                upload_finished_callback: imageFinishedCallback,
+                upload_progress_callback: imageProgressCallback,
+                upload_queue_callback: imageQueueCallback
             }, function(status) {
                 // Remove Connect Notice
                 if (status === 'has_token') {

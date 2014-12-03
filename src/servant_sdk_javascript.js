@@ -1,7 +1,7 @@
 /**
  *
  * Servant SDK Javascript for Client-Side Applications and Regular Web Pages
- * Version: v1.0.14
+ * Version: v1.0.15
  * By Servant – https://www.servant.co
  * Copyright 2014 Servant
  * Authors: Austen Collins
@@ -24,7 +24,6 @@
 
 
 
-
     /**
      *
      *  Initialization ------------------------------------------------------------------------------------
@@ -37,12 +36,15 @@
      *  scope                       // 'full' to use read/write accesstoken or 'limited' to use read only accesstoken.  Defaults to 'full'
      *  token                       // AccessToken
      *  cache                       // Auto-Cache Servants and User data in SDK when fetched.   Defaults to true.
-     *  image_file_input_class      // Class of file input field for onchange listener
-     *  image_dropzone_class        // Class of dropzone elements for drop listener
-     *  image_preview_id            // ID of image preview container to which img elements will be appended
-     *  image_success_callback      // Image upload success callback
-     *  image_failed_callback       // Image upload failed callback
-     *  image_progress_callback     // Image progress callback.  Returns percentage, bytes loaded, bytes total as params
+     *  upload_file_input_class     // Class of file input field for onchange listener used to upload files
+     *  upload_dropzone_class       // Class of dropzone elements for drop listener
+     *  upload_image_preview_id     // ID of image preview container to which img elements will be appended
+     *  upload_success_callback     // Upload success callback
+     *  upload_failed_callback      // Ppload failed callback
+     *  upload_started_callback     // Fired when uploading has begun
+     *  upload_finished_callback    // Fired when uploading has finished
+     *  upload_progress_callback    // Upload progress callback.  Returns percentage, bytes loaded, bytes total as params
+     *  upload_queue_callback       // Fired whenever an image in the queue has started to be uploaded
      *
      */
 
@@ -74,12 +76,7 @@
         this._scope = typeof options !== 'undefined' && typeof options.scope !== 'undefined' ? options.scope : 'full'; // AccessToken Scope:  Is it a FULL or LIMITED token?
         this._cache = typeof options !== 'undefined' && typeof options.cache !== 'undefined' ? options.cache : true;
         this._connectURL = 'https://www.servant.co/connect/oauth2/authorize?response_type=token&client_id=' + this._application_client_id;
-        this._image_file_input_class = options.image_file_input_class || null;
-        this._image_dropzone_class = options.image_dropzone_class || null;
-        this._image_preview_id = options.image_preview_id || null;
-        this._image_success_callback = options.image_success_callback || null;
-        this._image_failed_callback = options.image_failed_callback || null;
-        this._image_progress_callback = options.image_progress_callback || null;
+
         // Dev Options
         this._dashboard = options.dashboard || null;
         if (options.development) {
@@ -117,37 +114,9 @@
         }
 
         /**
-         * Initialize Image Uploading
+         * Initialize Uploadable Archetypes
          */
-
-        // Add Listeners for all file inputs
-        if (this._image_file_input_class) {
-            var file_inputs = document.getElementsByClassName(this._image_file_input_class.replace('.', ''));
-            for (var i = 0; i < file_inputs.length; ++i) {
-                file_inputs[i].addEventListener("change", function() {
-                    self._saveImageArchetype(this.files);
-                }, false);
-            }
-        }
-        // Add Listeners for all dropzones
-        if (this._image_dropzone_class) {
-            var dropzones = document.getElementsByClassName(this._image_dropzone_class.replace('.', ''));
-            for (var i = 0; i < dropzones.length; ++i) {
-                dropzones[i].addEventListener("dragenter", function(e) {
-                    e.stopPropagation();
-                    e.preventDefault();
-                }, false);
-                dropzones[i].addEventListener("dragover", function(e) {
-                    e.stopPropagation();
-                    e.preventDefault();
-                }, false);
-                dropzones[i].addEventListener("drop", function(e) {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    self._saveImageArchetype(e.dataTransfer.files)
-                }, false);
-            }
-        }
+        Servant.initializeUploadableArchetypes(options);
 
         // Render Callback If Included
         if (callback) return callback(this.status);
@@ -200,6 +169,139 @@
         } else {
             xhr.send();
         }
+    };
+
+    /**
+     *  Save Image Archetype
+     *  Create or Save an image archetype
+     */
+    Servant._saveImageArchetype = function(files) {
+        var self = this;
+        // Check if Servant is set
+        if (!self.servant) return console.error('Servant SDK Error – You have to set Servant.servant before you can upload images.  Use Servant.setServant(servant).');
+        // Check if browser supports FileAPI
+        if (window.FormData === undefined) return console.error('Servant SDK Error – This browser does not support the File API and cannot use this method to upload images');
+
+        // Upload Image Function
+        function imageUpload(image_file, queue_count, callback) {
+
+            // Check Type
+            if (['image/jpeg', 'image/jpg', 'image/png', 'image/gif'].indexOf(image_file.type) < 0) {
+                return callback(queue_count, {
+                    code: 'FileFormatNotAllowed',
+                    message: 'Image file type must be a JPEG, PNG or GIF'
+                }, null);
+            }
+            // Check File Size
+            if (image_file.size > 8000000) {
+                return callback(queue_count, {
+                    code: 'FileSizeError',
+                    message: 'Image file size must be less than 8 megabytes'
+                }, null);
+            }
+
+            var xhr = new XMLHttpRequest();
+            var formData = new FormData();
+
+            xhr.upload.onprogress = function(e) {
+                if (self._upload_progress_callback) self._upload_progress_callback(((e.loaded / e.total) * 100), e.loaded, e.total);
+            };
+
+            xhr.onload = function() {
+                // Queue Callback
+                if (xhr.status == 200) {
+                    return callback(queue_count, null, JSON.parse(xhr.responseText));
+                } else {
+                    return callback(queue_count, JSON.parse(xhr.responseText), null);
+                }
+            };
+
+            xhr.onerror = function() {
+                // Queue Callback
+                return callback(queue_count, JSON.parse(xhr.responseText, null));
+            };
+
+            var url = self._path + '/data/servants/' + self.servant._id + '/archetypes/image?access_token=' + self._token;
+            if (self._dashboard) url = url + '&dashboard=true';
+
+            xhr.open("POST", url, true);
+            formData.append("uploads", image_file);
+            xhr.send(formData);
+        };
+
+        // Prepare Image Previews
+        if (this._upload_image_preview_id) {
+            var image_preview_container = document.getElementById(this._upload_image_preview_id);
+            // Loop through and create image previews
+            for (i = 0; i < files.length; i++) {
+                var img = document.createElement("img");
+                img.classList.add("image-archetype-preview");
+                img.file = files[i];
+                image_preview_container.appendChild(img);
+                var reader = new FileReader();
+                reader.onload = (function(aImg) {
+                    return function(e) {
+                        aImg.src = e.target.result;
+                    };
+                })(img);
+                reader.readAsDataURL(files[i]);
+            }
+            var previews = true;
+
+            // Collect Each Image Preview in an array, to remove after upload
+            var image_elements = document.querySelectorAll(".image-archetype-preview");
+        } else {
+            var previews = false;
+        }
+
+        var images = files;
+        var queue_count = 0;
+
+        function imageQueue() {
+            // Check if finished
+            if (queue_count < images.length) {
+                // Upload
+                new imageUpload(images[queue_count], queue_count, function(queue, error, response) {
+                    // Remove Preview
+                    if (previews) document.getElementById(self._upload_image_preview_id).children[0].remove();
+                    // Callback
+                    if (error) self._upload_failed_callback(error);
+                    self._upload_success_callback(response);
+                    // Run Again?
+                    if (queue_count < images.length + 1) {
+                        imageQueue();
+                    }
+                });
+                // Increment Counter
+                queue_count = queue_count + 1;
+                // Fire Queue Callback
+                self._upload_queue_callback(queue_count, images.length);
+            } else {
+                // Finished Uploading Queue, Clean Up Everything
+                // Ensure Previews Are Removed
+                if (previews) document.getElementById(self._upload_image_preview_id).innerHTML = '';
+                // Clear File Inputs
+                var file_inputs = document.querySelectorAll('.' + self._upload_file_input_class);
+                for (i = 0; i < file_inputs.length; i++) {
+                    var oldInput = file_inputs[i];
+                    var newInput = document.createElement("input");
+                    newInput.type = "file";
+                    newInput.multiple = true;
+                    newInput.className = self._upload_file_input_class;
+                    oldInput.parentNode.replaceChild(newInput, oldInput);
+                    newInput.addEventListener("change", function() {
+                        self._saveImageArchetype(this.files);
+                    }, false);
+                }
+                // Finished Callback
+                if (self._upload_finished_callback) self._upload_finished_callback();
+            }
+        }
+
+        // Start ImageQueue
+        imageQueue();
+        // Start Callback
+        if (self._upload_started_callback) self._upload_started_callback();
     };
 
 
@@ -733,136 +835,68 @@
     }; // Servant.validate
 
 
-
     /**
      *
-     *  Save Image Archetype
-     *  Create or Save an image archetype
+     * Initialize Uploadable Archetypes
+     *
+     *  upload_file_input_class     // Class of file input field for onchange listener used to upload files
+     *  upload_dropzone_class       // Class of dropzone elements for drop listener
+     *  upload_image_preview_id     // ID of image preview container to which img elements will be appended
+     *  upload_success_callback     // Upload success callback
+     *  upload_failed_callback      // Ppload failed callback
+     *  upload_started_callback     // Fired when uploading has begun
+     *  upload_finished_callback    // Fired when uploading has finished
+     *  upload_progress_callback    // Upload progress callback.  Returns percentage, bytes loaded, bytes total as params
      *
      */
-    Servant._saveImageArchetype = function(files) {
+    Servant.initializeUploadableArchetypes = function(options) {
         var self = this;
-        // Check if Servant is set
-        if (!self.servant) return console.error('Servant SDK Error – You have to set Servant.servant before you can upload images.  Use Servant.setServant(servant).');
-        // Check if browser supports FileAPI
-        if (window.FormData === undefined) return console.error('Servant SDK Error – This browser does not support the File API and cannot use this method to upload images');
 
-        // Upload Image Function
-        function imageUpload(image_file, queue_count, callback) {
-
-            // Check Type
-            if (['image/jpeg', 'image/jpg', 'image/png', 'image/gif'].indexOf(image_file.type) < 0) {
-                return callback(queue_count, {
-                    code: 'FileFormatNotAllowed',
-                    message: 'Image file type must be a JPEG, PNG or GIF'
-                }, null);
-            }
-            // Check File Size
-            if (image_file.size > 8000000) {
-                return callback(queue_count, {
-                    code: 'FileSizeError',
-                    message: 'Image file size must be less than 8 megabytes'
-                }, null);
-            }
-
-            var xhr = new XMLHttpRequest();
-            var formData = new FormData();
-
-            xhr.upload.onprogress = function(e) {
-                if (self._image_progress_callback) self._image_progress_callback(((e.loaded / e.total) * 100), e.loaded, e.total);
-            };
-
-            xhr.onload = function() {
-                // Queue Callback
-                if (xhr.status == 200) {
-                    return callback(queue_count, null, JSON.parse(xhr.responseText));
-                } else {
-                    return callback(queue_count, JSON.parse(xhr.responseText), null);
-                }
-            };
-
-            xhr.onerror = function() {
-                // Queue Callback
-                return callback(queue_count, JSON.parse(xhr.responseText, null));
-            };
-
-            var url = self._path + '/data/servants/' + self.servant._id + '/archetypes/image?access_token=' + self._token;
-            if (self._dashboard) url = url + '&dashboard=true';
-
-            xhr.open("POST", url, true);
-            formData.append("uploads", image_file);
-            xhr.send(formData);
-        };
-
-        // Prepare Image Previews
-        if (this._image_preview_id) {
-            var image_preview_container = document.getElementById(this._image_preview_id);
-            // Loop through and create image previews
-            for (i = 0; i < files.length; i++) {
-                var img = document.createElement("img");
-                img.classList.add("image-archetype-preview");
-                img.file = files[i];
-                image_preview_container.appendChild(img);
-                var reader = new FileReader();
-                reader.onload = (function(aImg) {
-                    return function(e) {
-                        aImg.src = e.target.result;
-                    };
-                })(img);
-                reader.readAsDataURL(files[i]);
-            }
-            var previews = true;
-
-            // Collect Each Image Preview in an array, to remove after upload
-            var image_elements = document.querySelectorAll(".image-archetype-preview");
-        } else {
-            var previews = false;
+        if (options.upload_file_input_class || options.upload_dropzone_class || options.upload_preview_id || options.upload_failed_callback || options.upload_progress_callback) {
+            if (!options.upload_success_callback) return console.error('Servant SDK Error – You must specify a upload_success_callback if you want to work with uploadable archetypes.');
         }
 
-        var images = files;
-        var queue_count = 0;
+        // Set Defaults
+        this._upload_file_input_class = options.upload_file_input_class || null;
+        this._upload_dropzone_class = options.upload_dropzone_class || null;
+        this._upload_image_preview_id = options.upload_image_preview_id || null;
+        this._upload_success_callback = options.upload_success_callback || null;
+        this._upload_failed_callback = options.upload_failed_callback || null;
+        this._upload_started_callback = options.upload_started_callback || null;
+        this._upload_finished_callback = options.upload_finished_callback || null;
+        this._upload_progress_callback = options.upload_progress_callback || null;
+        this._upload_queue_callback = options.upload_queue_callback || null;
 
-        function imageQueue() {
-            // Check if finished
-            if (queue_count < images.length) {
-                // Upload
-                new imageUpload(images[queue_count], queue_count, function(queue, error, response) {
-                    // Remove Preview
-                    if (previews) document.getElementById(self._image_preview_id).children[0].remove();
-                    // Callback
-                    if (error) self._image_failed_callback(error);
-                    self._image_success_callback(response);
-                    // Run Again?
-                    if (queue_count < images.length + 1) {
-                        imageQueue();
-                    }
-                });
-                // Increment Counter
-                queue_count = queue_count + 1;
-            } else {
-                // Finished Uploading Queue, Clean Up Everything
-                // Ensure Previews Are Removed
-                if (previews) document.getElementById(self._image_preview_id).innerHTML = '';
-                // Clear File Inputs
-                var file_inputs = document.querySelectorAll('.' + self._image_file_input_class);
-                for (i = 0; i < file_inputs.length; i++) {
-                    var oldInput = file_inputs[i];
-                    var newInput = document.createElement("input");
-                    newInput.type = "file";
-                    newInput.multiple = true;
-                    newInput.className = self._image_file_input_class;
-                    oldInput.parentNode.replaceChild(newInput, oldInput);
-                    newInput.addEventListener("change", function() {
-                        self._saveImageArchetype(this.files);
-                    }, false);
-                }
+        // Add Listeners for all file inputs
+        if (this._upload_file_input_class) {
+            var file_inputs = document.getElementsByClassName(this._upload_file_input_class.replace('.', ''));
+            for (var i = 0; i < file_inputs.length; ++i) {
+                file_inputs[i].addEventListener("change", function() {
+                    self._saveImageArchetype(this.files);
+                }, false);
             }
         }
 
-        // Start ImageQueue
-        imageQueue();
-
-    };
+        // Add Listeners for all dropzones
+        if (this._upload_dropzone_class) {
+            var dropzones = document.getElementsByClassName(this._upload_dropzone_class.replace('.', ''));
+            for (var i = 0; i < dropzones.length; ++i) {
+                dropzones[i].addEventListener("dragenter", function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                }, false);
+                dropzones[i].addEventListener("dragover", function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                }, false);
+                dropzones[i].addEventListener("drop", function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    self._saveImageArchetype(e.dataTransfer.files)
+                }, false);
+            }
+        }
+    }
 
 
     /**
@@ -1012,7 +1046,7 @@
             page: page
         };
 
-        Servant.queryArchetypes(archetype, null, function(response) {
+        Servant.queryArchetypes(archetype, criteria, function(response) {
             return success(response);
         }, function(error) {
             return failed(error);
