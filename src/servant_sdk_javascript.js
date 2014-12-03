@@ -1,7 +1,7 @@
 /**
  *
  * Servant SDK Javascript for Client-Side Applications and Regular Web Pages
- * Version: v1.0.15
+ * Version: v1.0.16
  * By Servant – https://www.servant.co
  * Copyright 2014 Servant
  * Authors: Austen Collins
@@ -149,6 +149,7 @@
         if (this.status !== "has_token") return console.error('Servant SDK Error – The SDK has no Access Token');
 
         var url = this._path + path;
+        if (this._protocol === 'https') url = url + '&protocol=https';
         if (this._dashboard) url = url + '&dashboard=true';
 
         var xhr = new XMLHttpRequest();
