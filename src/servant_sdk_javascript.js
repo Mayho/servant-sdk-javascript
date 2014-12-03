@@ -847,6 +847,7 @@
      *  upload_started_callback     // Fired when uploading has begun
      *  upload_finished_callback    // Fired when uploading has finished
      *  upload_progress_callback    // Upload progress callback.  Returns percentage, bytes loaded, bytes total as params
+     *  upload_queue_callback       // Upload queue callback.  Every time a new upload begins, this is fired with the queue_number and total as params
      *
      */
     Servant.initializeUploadableArchetypes = function(options) {

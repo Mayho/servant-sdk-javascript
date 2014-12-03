@@ -70,18 +70,6 @@ Optional - String - 'full' or 'limited' - IMPORTANT: When you authorize, you are
 Optional - String - Manually input an access token
 * **cache:** true,
 Optional - Boolean - Auto-cache Servants and User data in the SDK when fetched.  Defaults to true.
-* **image_file_input_class:** 'image-input',
-Optional - String - If you have file inputs to select images for uploading to create Image Archetypes, put in their class here, and files will be auto-uploaded afer being selected.
-* **image_dropzone_class:** 'image-dropzone',
-Optional - String - Class of dropzone elements.  Drop listener will be added.
-* **image_preview_id:** 'image-upload-previews',
-Optional - String - ID of image preview container to which img elements will be appended before upload and removed after upload.
-* **image_success_callback:** imageSuccessCallback,
-Optional - Function - Image upload success callback,
-* **image_failed_callback:** imageFailedCallback,
-Optional - Function - Image upload failed callback.
-* **image_progress_callback:** imageProgressCallback,
-Optional - Function - Image progress callback.  Returns percentage, bytes loaded, bytes total as params.
 
 **Servant.status**
 This returns "uninitialized", "no_token", "has_token"
@@ -192,8 +180,33 @@ A convenience method to fetch records of an Archetype sorted by oldest to newest
 
 
 
-**Creating Image Archetypes**
-Image Archetypes cannot be created like other Archetypes.  To create or update them, you must upload an image directly to Servant.  Then you will receive the created Image Archetype in the response.  The `.initialize()` method contains a ton of helpful options to handle uploading for you.  Make sure you set the servant before creating image archetypes via `.setServant(servant)`.
+**Uploadable Archetypes (e.g., Image Archetypes)**
+Uploadable Archetypes (currently only Image Archetypes are available) cannot be created like other Archetypes.  To create or update them, you must upload an image directly to Servant.  Then you will receive the created Image Archetype in the response.  
 
+The `.initializeUploadableArchetypes()` method contains a ton of helpful options to handle uploading for you.  Whenever you have a view in your application that needs to create Uploadable Archetypes, run this method.  Also, make sure you set the servant before creating uploadable archetypes via `.setServant(servant)`.
+
+
+    Servant.initializeUploadableArchetypes(options);
+
+Method Options:
+
+* **upload_file_input_class:** 'image-input',
+Optional - String - If you have file inputs to select images for uploading to create Image Archetypes, put in their class here, and files will be auto-uploaded afer being selected.
+* **upload_dropzone_class:** 'image-dropzone',
+Optional - String - Class of dropzone elements.  Drop listener will be added.
+* **upload_image_preview_id:** 'image-upload-previews',
+Optional - String - ID of image preview container to which img elements will be appended before upload and removed after upload.
+* **upload_success_callback:** imageSuccessCallback,
+Optional - Function - Fired upon each upload being completed.  Returns an Archetype record.
+* **upload_failed_callback:** imageFailedCallback,
+Optional - Function - Image upload failed callback.  Returns an error.
+* **upload_started_callback:** imageStartedCallback,
+Optional - Function - When a single or batch of files has begun uploading, this callback is fired.  Returns nothing.
+* **upload_finished_callback:** imageFinishedCallback,
+Optional - Function - When a single or batch of files is finished uploading, this callback is fired.  Returns nothing.
+* **upload_queue_callback:** imageQueueCallback,
+Optional - Function - When you upload a batch of files, this is fired each time a new item in the queue has begun uploading.  Returns the current queue number and total number of files.
+* **image_progress_callback:** imageProgressCallback,
+Optional - Function - Image progress callback.  Returns percentage, bytes loaded, bytes total as params.
 
 
