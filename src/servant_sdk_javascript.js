@@ -1,7 +1,7 @@
 /**
  *
  * Servant SDK Javascript for Client-Side Applications and Regular Web Pages
- * Version: v1.0.17
+ * Version: v1.1.0
  * By Servant – https://www.servant.co
  * Copyright 2014 Servant
  * Authors: Austen Collins
@@ -231,6 +231,8 @@
             if (self.uploadable_archetype_record_id) url = url + '/' + self.uploadable_archetype_record_id;
             // Add Access Token
             url = url + '?access_token=' + self._token;
+            // Add Protocol
+            if (self._protocol) url = url + '&protocol=https';
             // Add dashboard param, if it is set
             if (self._dashboard) url = url + '&dashboard=true';
 
