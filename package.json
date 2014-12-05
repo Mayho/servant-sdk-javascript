@@ -1,6 +1,6 @@
 {
     "name": "servant-sdk-javascript",
-    "version": "1.0.16",
+    "version": "1.0.17",
     "description": "Servant SDK for javascript",
     "main": "index.js",
     "scripts": {},

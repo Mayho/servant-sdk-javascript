@@ -209,4 +209,10 @@ Optional - Function - When you upload a batch of files, this is fired each time 
 * **image_progress_callback:** imageProgressCallback,
 Optional - Function - Image progress callback.  Returns percentage, bytes loaded, bytes total as params.
 
+**Updating Uploadable Archetypes (e.g., Image Archetypes)**
+To replace the file (e.g., image) in an Archetype Record that has already been published on Servant, set the following variable with the Record's ID.  Remember to set it to null when you are done updating that specific record:
+
+    Servant.uploadable_archetype_record_id = 'JS82JSKS92KSLS8290239';
+    // Set this to null when you're done updating a specific record
+    Servant.uploadable_archetype_record_id = null;
 

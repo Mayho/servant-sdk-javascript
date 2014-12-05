@@ -1,7 +1,7 @@
 /**
  *
  * Servant SDK Javascript for Client-Side Applications and Regular Web Pages
- * Version: v1.0.16
+ * Version: v1.0.17
  * By Servant – https://www.servant.co
  * Copyright 2014 Servant
  * Authors: Austen Collins
@@ -65,6 +65,7 @@
         this.user = null;
         this.servants = null;
         this.servant = null;
+        this.uploadable_archetype_record_id = null;
 
         /**
          * Set Options and Defaults
@@ -182,6 +183,8 @@
         if (!self.servant) return console.error('Servant SDK Error – You have to set Servant.servant before you can upload images.  Use Servant.setServant(servant).');
         // Check if browser supports FileAPI
         if (window.FormData === undefined) return console.error('Servant SDK Error – This browser does not support the File API and cannot use this method to upload images');
+        // If trying to upload multiple files to an existing record, allow only one
+        if (self.uploadable_archetype_record_id && files.length > 1) files = files[0];
 
         // Upload Image Function
         function imageUpload(image_file, queue_count, callback) {
@@ -222,10 +225,18 @@
                 return callback(queue_count, JSON.parse(xhr.responseText, null));
             };
 
-            var url = self._path + '/data/servants/' + self.servant._id + '/archetypes/image?access_token=' + self._token;
+            // Set URL
+            var url = self._path + '/data/servants/' + self.servant._id + '/archetypes/image';
+            // Add Existing Record ID, if it is set
+            if (self.uploadable_archetype_record_id) url = url + '/' + self.uploadable_archetype_record_id;
+            // Add Access Token
+            url = url + '?access_token=' + self._token;
+            // Add dashboard param, if it is set
             if (self._dashboard) url = url + '&dashboard=true';
 
-            xhr.open("POST", url, true);
+            var method = typeof self.uploadable_archetype_record_id === 'string' ? 'PUT' : 'POST';
+
+            xhr.open(method, url, true);
             formData.append("uploads", image_file);
             xhr.send(formData);
         };
@@ -849,6 +860,8 @@
      *  upload_finished_callback    // Fired when uploading has finished
      *  upload_progress_callback    // Upload progress callback.  Returns percentage, bytes loaded, bytes total as params
      *  upload_queue_callback       // Upload queue callback.  Every time a new upload begins, this is fired with the queue_number and total as params
+     *
+     *  Set the Servant.uploadable_archetype_record_id variable with an existing Archetype Record's ID to update it with a new file
      *
      */
     Servant.initializeUploadableArchetypes = function(options) {
